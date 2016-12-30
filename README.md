@@ -2,7 +2,7 @@
 
 We were tasked as a group with creating a piece of middleware using Java, for an assessment at University.
 
-## objectives
+## Objectives
 •	the middleware will support mixed networks of portals and user defined agents (also allowing for future extensibility)
 
 •	networks will be structured as interlaced trees with uni- and bi-directional links
