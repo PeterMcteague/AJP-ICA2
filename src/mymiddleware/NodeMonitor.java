@@ -8,22 +8,33 @@ package mymiddleware;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
+/**NodeMonitor - A class for monitoring node actions.
  *
+ * Prints messages sent and received on a portal when attached to the portal.
+ * 
  * @author Peter
  */
 public class NodeMonitor extends MetaAgent
 {
     protected String name;
     
-    public void NodeMonitor(String nameIn)
+    /**NodeMonitor(String) - Creates and names a NodeMonitor.
+     * 
+     * Remember to call .agentThread.start on the monitor after creation.
+     * 
+     * @param nameIn - The name to give to a NodeMonitor.
+     */
+    public NodeMonitor(String nameIn)
     {
         name = nameIn;
         agentThread = new Thread();
-        agentThread.start();
     }
     
-    @Override
+    /**run() - The run method for the nodemonitor. See runnable.
+     * @see runnable
+     * 
+     */
+    @Override    
     public void run() 
     {
         //While the thread hasn't been interrupted.
@@ -51,8 +62,12 @@ public class NodeMonitor extends MetaAgent
         }
     }
 
-    /*Probably doesn't need syncing.
-    Different objects on their owns threads.*/
+    /**recieveMessage() - gets the message at the front of the queue and prints it.
+     * 
+     * Called by run().
+     * 
+     * @return 
+     */
     @Override
     public synchronized boolean recieveMessage() 
     {
@@ -61,7 +76,9 @@ public class NodeMonitor extends MetaAgent
         {
             Message incomingMessage = this.poll();
             System.out.println(name + " recieved message: " + incomingMessage.toString());
+            return true;
         }
+        return false;
     }
     
 }
