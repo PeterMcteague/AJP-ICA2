@@ -5,18 +5,26 @@
  */
 package mymiddleware;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.*;
+import static javax.swing.JSplitPane.LEFT;
 
 /**NodeMonitor - A class for monitoring node actions.
  *
  * Prints messages sent and received on a portal when attached to the portal.
+ * Would extend this in future to feature a GUI.
  * 
  * @author Peter
  */
 public class NodeMonitor extends MetaAgent
 {
     protected String name;
+    private JFrame frame;
+    private JTextArea output;
+    private JPanel panel;
     
     /**NodeMonitor(String) - Creates and names a NodeMonitor.
      * 
@@ -28,6 +36,23 @@ public class NodeMonitor extends MetaAgent
     {
         name = nameIn;
         agentThread = new Thread();
+        //Setting up the JFrame for the monitor
+        output = new JTextArea(5, 20);
+        output.setLineWrap(true);
+        output.setWrapStyleWord(true);
+        output.setEditable(false);
+        frame = new JFrame();
+        frame.setTitle("Nodemonitor: " + name);
+        Container frameContent = frame.getContentPane();
+        panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        frame.add(panel);
+        panel.add(new JLabel("Output:"),BorderLayout.PAGE_START);
+        panel.add(output,BorderLayout.CENTER);
+        frame.pack();
+        frame.setSize(400,200);
+        frame.setResizable(false);
+        frame.setVisible(true);
     }
     
     /**run() - The run method for the nodemonitor. See runnable.
@@ -75,7 +100,7 @@ public class NodeMonitor extends MetaAgent
         if(!this.isEmpty())
         {
             Message incomingMessage = this.poll();
-            System.out.println(name + " recieved message: " + incomingMessage.toString());
+            output.append(incomingMessage.toString() + "\n");
             return true;
         }
         return false;
