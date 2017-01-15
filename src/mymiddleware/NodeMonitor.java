@@ -7,10 +7,11 @@ package mymiddleware;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
-import static javax.swing.JSplitPane.LEFT;
 
 /**NodeMonitor - A class for monitoring node actions.
  *
@@ -87,10 +88,11 @@ public class NodeMonitor extends MetaAgent
         }
     }
 
-    /**recieveMessage() - gets the message at the front of the queue and prints it.
+    /**recieveMessage() - gets the message at the front of the queue and adds it to the output on the GUI, with a timestamp.
      * 
      * Called by run().
      * 
+     * @see System.currentTimeMillis
      * @return 
      */
     @Override
@@ -99,8 +101,11 @@ public class NodeMonitor extends MetaAgent
         //If the queue isn't empty.
         if(!this.isEmpty())
         {
+            Calendar calendarInstance = Calendar.getInstance();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
             Message incomingMessage = this.poll();
-            output.append(incomingMessage.toString() + "\n");
+            //Add message recieved with timestamp to the output on the GUI.
+            output.append(dateFormat.format(calendarInstance.getTime()) + ": " + incomingMessage.toString() + "\n");
             return true;
         }
         return false;
