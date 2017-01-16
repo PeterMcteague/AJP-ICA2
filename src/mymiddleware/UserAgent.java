@@ -16,22 +16,26 @@ import java.util.logging.Logger;
 public class UserAgent extends MetaAgent implements Runnable{
     
     protected String name;
+    private Portal portal;
     
-    public void sendMessage() {
-        Portal.add(Message);
-        }
+    public void sendMessage(String destination, String message) 
+    {
+        portal.add(new Message(destination,name,message));
+    }
 
     @Override
     public boolean recieveMessage() {
         if(!this.isEmpty())
         {
-            Message incomingMessage = this.poll();
+            Message incomingMessage = (Message) this.poll();
             System.out.println(name + " recieved message: " + incomingMessage.toString());
+            return true;
         }
+        return false;
     }
     
-    public void userAgent(String input) {
-        name = input;
+    public void userAgent(String nameIn) {
+        name = nameIn;
         agentThread = new Thread();
         agentThread.start();
     }
@@ -60,25 +64,13 @@ public class UserAgent extends MetaAgent implements Runnable{
         }
     }
     
-    public boolean increaseScope(int scope) {
-        if (scope==1)
-        {
-            Portal.Register(UserAgent);
-        }
-        if (scope==2)
-        {
-            Portal.Register(UserAgent);
-        }
-    }
+//    public boolean increaseScope(int scope) {
+//        /*Needs implementing, send system message to portal with number of steps
+//        and this nodes name.*/
+//    }
     
-    public boolean decreaseScope(int scope) {
-        if (scope==1)
-        {
-            Portal.Unregister(UserAgent);
-        }
-        if (scope==2)
-        {
-            Portal.Unregister(UserAgent);
-        }
-    }
+//    public boolean decreaseScope(int scope) {
+//        /*Needs implementing, send system message to portal with number of steps
+//        and this nodes name.*/
+//    }
 }

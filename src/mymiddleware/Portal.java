@@ -55,14 +55,15 @@ public class Portal extends MetaAgent
     {
         if(!this.isEmpty())
         {
-            Message incomingMessage = this.poll();
+            Message incomingMessage = (Message) this.poll();
             return true;
         }
         return false;
     }
-    public void sendMessage(message)
+    
+    public void sendMessage(Message message)
     {
-        routingTable.get(messageRecipient(message).offer(message));
+        (routingTable.get(message.destination))//.offer(message);
     }
     
     public void addAgent(String name)

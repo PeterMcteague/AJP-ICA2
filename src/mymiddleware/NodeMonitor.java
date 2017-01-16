@@ -21,7 +21,7 @@ import javax.swing.*;
 public class NodeMonitor extends MetaAgent
 {
     protected String name;
-    private JFrame gui;
+    private final NodeMonitorGUI gui;
     
     /**NodeMonitor(String) - Creates and names a NodeMonitor.
      * 
@@ -96,7 +96,7 @@ public class NodeMonitor extends MetaAgent
         {
             Calendar calendarInstance = Calendar.getInstance();
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
-            Message incomingMessage = this.poll();
+            Message incomingMessage = (Message) this.poll();
             //Add message recieved with timestamp to the output on the GUI.
             gui.addToOutput(dateFormat.format(calendarInstance.getTime()) + ": " + incomingMessage.toString() + "\n");
             return true;
