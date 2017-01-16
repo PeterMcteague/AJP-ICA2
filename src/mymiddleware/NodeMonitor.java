@@ -5,8 +5,6 @@
  */
 package mymiddleware;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.Level;
@@ -23,9 +21,7 @@ import javax.swing.*;
 public class NodeMonitor extends MetaAgent
 {
     protected String name;
-    private JFrame frame;
-    private JTextArea output;
-    private JPanel panel;
+    private JFrame gui;
     
     /**NodeMonitor(String) - Creates and names a NodeMonitor.
      * 
@@ -37,23 +33,7 @@ public class NodeMonitor extends MetaAgent
     {
         name = nameIn;
         agentThread = new Thread();
-        //Setting up the JFrame for the monitor
-        output = new JTextArea(5, 20);
-        output.setLineWrap(true);
-        output.setWrapStyleWord(true);
-        output.setEditable(false);
-        frame = new JFrame();
-        frame.setTitle("Nodemonitor: " + name);
-        Container frameContent = frame.getContentPane();
-        panel = new JPanel();
-        panel.setLayout(new BorderLayout());
-        frame.add(panel);
-        panel.add(new JLabel("Output:"),BorderLayout.PAGE_START);
-        panel.add(output,BorderLayout.CENTER);
-        frame.pack();
-        frame.setSize(400,200);
-        frame.setResizable(false);
-        frame.setVisible(true);
+        gui = new NodeMonitorGUI(nameIn,this);
     }
     
     /**run() - The run method for the nodemonitor. See runnable.
@@ -88,6 +68,19 @@ public class NodeMonitor extends MetaAgent
         }
     }
 
+    /**Closes the GUI and stops the nodemonitor from running.
+     * 
+     * Make sure to dereference the nodemonitor for garbage disposal.
+     * When using this have the method call NodeMonitor.close() followed by
+     * nodeMonitorReference=null.
+     */
+    public void stop()
+    {
+        agentThread.interrupt();
+        gui.dispose();
+        System.out.println(name + " stopped");
+    }
+    
     /**recieveMessage() - gets the message at the front of the queue and adds it to the output on the GUI, with a timestamp.
      * 
      * Called by run().
@@ -105,7 +98,7 @@ public class NodeMonitor extends MetaAgent
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
             Message incomingMessage = this.poll();
             //Add message recieved with timestamp to the output on the GUI.
-            output.append(dateFormat.format(calendarInstance.getTime()) + ": " + incomingMessage.toString() + "\n");
+            gui.addToOutput(dateFormat.format(calendarInstance.getTime()) + ": " + incomingMessage.toString() + "\n");
             return true;
         }
         return false;
