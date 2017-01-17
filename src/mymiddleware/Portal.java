@@ -15,9 +15,9 @@ import java.util.logging.Logger;
  */
 public class Portal extends MetaAgent
 {
-    protected String name;
     private NodeMonitor nodeMonitor;
-    private final Hashtable<String,MetaAgent> routingTable;//May be Obsolete but hashtables are synchronised whereas hashmaps are not by default. Should function the same.
+    private static AgentRegisterer updater;
+    protected final Hashtable<String,MetaAgent> routingTable;//May be Obsolete but hashtables are synchronised whereas hashmaps are not by default. Should function the same.
     
     public Portal(String portalName)
     {
@@ -72,35 +72,89 @@ public class Portal extends MetaAgent
             routingTable.get(message.destination).offer(message);//Offer message to 
         }        
     }
-    
-    public void addAgent(MetaAgent agentIn)
+
+    public boolean attachMonitor(String nameIn)
     {
-        if (routingTable.get(agentIn.name)==null)//If not already in table
+        if (nodeMonitor == null)
         {
-            /*If it's a userAgent and has a portal already, reject. Maybe call this
-            from metaAgents, rather than start in here, so that checks can be done.*/
-            INCOMPLETE
-            /*Use systemMessages for adding, that way you can trace a route. Maybe
-            add another method for directly attatching useragents.*/
+            String monitorName = nameIn;
+            NodeMonitor  monitor = new NodeMonitor(monitorName);
+            nodeMonitor = monitor;
+            return true;
         }
+        return false;
     }
     
-    public void removeAgent(String name)
+    public boolean attachMonitor(NodeMonitor monitorIn)
     {
-        routingTable.remove(name); // may need to find a way of removing references to removed agent from other portals.
+        if (nodeMonitor == null)
+        {
+            nodeMonitor = monitorIn;
+            return true;
+        }
+        return false;
     }
     
-    public void addMonitor(String nameIn)
+    public boolean removeMonitor()
     {
-        String monitorName = nameIn;
-        NodeMonitor  monitor = new NodeMonitor(monitorName);
-        nodeMonitor = monitor;
+        if (nodeMonitor != null)
+        {
+            nodeMonitor.stop(); // need to find way of removing monitor with requested name.
+            nodeMonitor = null;
+            return true;
+        }
+        return false;
     }
     
-    public void removeMonitor(String name)
+    public boolean attachUserAgent(UserAgent agentIn)
     {
-        nodeMonitor.stop(); // need to find way of removing monitor with requested name.
-        nodeMonitor = null;
+        if (agentIn.isAttachedToPortal() == true)
+        {
+            if (!routingTable.containsKey(agentIn.name))
+            {
+                agentIn.attachToPortal(this);
+                this.routingTable.put(agentIn.name, agentIn);
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public boolean attachPortal(Portal portalIn)
+    {
+        if (routingTable.get(portalIn.name)==null)//If not already in table
+        {
+            routingTable.put(portalIn.name, portalIn);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean registerAgent(String agentName)
+    {
+        //If the agent belongs to this portal.
+        if (routingTable.containsKey(agentName) && routingTable.get(agentName).equals(this))
+        {
+           updater.registerAgent(routingTable.get(agentName), this);
+           return true;
+        }
+        return false;
+    }
+
+    public void registerPortal(String portalName)
+    {
+        updater.registerPortal(this);
+    }
+    
+    public boolean removeAgent(String name)
+    {
+        if (routingTable.containsKey(name))
+        {
+            MetaAgent agent = routingTable.get(name);
+            updater.unregisterAgent(agent);
+            return true;
+        }
+        return false;
     }
 }
 

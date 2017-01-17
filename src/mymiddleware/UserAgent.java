@@ -15,7 +15,6 @@ import java.util.logging.Logger;
  */
 public class UserAgent extends MetaAgent implements Runnable{
     
-    protected String name;
     private Portal portal;
     
     public void sendMessage(String destination, String message) 
@@ -64,13 +63,38 @@ public class UserAgent extends MetaAgent implements Runnable{
         }
     }
     
+    public boolean isAttachedToPortal()
+    {
+        return portal != null;
+    }
+    
+    public boolean attachToPortal(Portal portalIn)
+    {
+        if(portalIn != null)
+        {
+            portal = portalIn;
+            portalIn.attachUserAgent(this);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean detachFromPortal(Portal portalIn)
+    {
+        if(portal != null)
+        {
+            portal.removeAgent(name);
+            portal = null;
+            return true;
+        }
+        return false;
+    }
+    
 //    public boolean increaseScope(int scope) {
-//        /*Needs implementing, send system message to portal with number of steps
-//        and this nodes name.*/
+//        /*Needs implementing, use updater with some method for number of steps.*/
 //    }
     
 //    public boolean decreaseScope(int scope) {
-//        /*Needs implementing, send system message to portal with number of steps
-//        and this nodes name.*/
+//        /*Needs implementing, use updater with some method for number of steps.*/
 //    }
 }
