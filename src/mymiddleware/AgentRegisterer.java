@@ -33,7 +33,7 @@ public class AgentRegisterer
         {
             if (p != attachedPortal && p != agentIn)
             {
-                System.out.println("REGISTERING AGENT");
+                System.out.println("REGISTERING ROUTE WITH THIRD PARTY");
                 p.routingTable.put(agentIn.name, p.routingTable.get(attachedPortal.name));
             }
         }

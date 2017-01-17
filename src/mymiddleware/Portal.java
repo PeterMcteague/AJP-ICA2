@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class Portal extends MetaAgent
 {
-    private NodeMonitor nodeMonitor;
+    protected NodeMonitor nodeMonitor;
     private static AgentRegisterer updater;
     protected final Hashtable<String,MetaAgent> routingTable;//May be Obsolete but hashtables are synchronised whereas hashmaps are not by default. Should function the same.
     
@@ -30,7 +30,7 @@ public class Portal extends MetaAgent
     {
         if (routingTable.get(agentIn.name)==null)//If not already in table
         {
-            System.out.println(agentIn.name + " is not in this portals table and is being added.");
+            System.out.println(agentIn.name + " is not in " + this.name +" and is being added.");
             routingTable.put(agentIn.name, agentIn);
             updater.registerAgent(agentIn, this);
             return true;
@@ -115,6 +115,7 @@ public class Portal extends MetaAgent
     
     public void sendMessage(Message message)
     {
+        //If it has a direct link
         if (routingTable.get(message.destination) != null)
         {
             System.out.println("There is a key in " + name + "'s routing table for " + message.destination);
@@ -122,8 +123,22 @@ public class Portal extends MetaAgent
             routingTable.get(message.destination).offer(message);//Offer message to 
             routingTable.get(message.destination).resume();
             System.out.println("Message offered to " + routingTable.get(message.destination) + " by " + name);
-            
-        }        
+            return;
+        }      
+        for (MetaAgent a: routingTable.values())
+        {
+            if (a instanceof Portal)
+            {
+                if (((Portal) a).routingTable.containsKey(message.destination))
+                {
+                    System.out.println(((Portal) a).name + " has a route to the destination. Sending...");
+                    a.offer(message);
+                    a.resume();
+                    return;
+                }
+            }
+        }
+        System.out.println(name + " could not find a way to send the message.");
     }
    
     public boolean removeMonitor()
