@@ -5,9 +5,7 @@
  */
 package mymiddleware;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,13 +16,14 @@ import java.util.logging.Logger;
 public class Portal extends MetaAgent
 {
     protected String name;
-    List<NodeMonitor> nodeMonitors = new ArrayList<>();
-    Hashtable routingTable = new Hashtable(); // didn't read much into it but I think Hashtables are synchronised whereas hashmaps are not by default. regardless, they function more or less the same.
+    private NodeMonitor nodeMonitor;
+    private final Hashtable<String,MetaAgent> routingTable;//May be Obsolete but hashtables are synchronised whereas hashmaps are not by default. Should function the same.
     
     public Portal(String portalName)
     {
         name = portalName;
         agentThread = new Thread();
+        routingTable = new Hashtable<String,MetaAgent>(); 
     }
     
     @Override    
@@ -44,7 +43,7 @@ public class Portal extends MetaAgent
                         this.wait();
                     } 
                     catch (InterruptedException ex){
-                    Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
@@ -56,6 +55,11 @@ public class Portal extends MetaAgent
         if(!this.isEmpty())
         {
             Message incomingMessage = (Message) this.poll();
+            //If the message is not for the portal, but for it to relay.
+            if (!incomingMessage.destination.equals(name))
+            {
+                sendMessage(incomingMessage);
+            }
             return true;
         }
         return false;
@@ -63,12 +67,22 @@ public class Portal extends MetaAgent
     
     public void sendMessage(Message message)
     {
-        (routingTable.get(message.destination))//.offer(message);
+        if (routingTable.get(message.destination) != null)
+        {
+            routingTable.get(message.destination).offer(message);//Offer message to 
+        }        
     }
     
-    public void addAgent(String name)
+    public void addAgent(MetaAgent agentIn)
     {
-        routingTable.put(name, path); // not sure how we want to show mappings in the table. it will depend on how we name our agents.
+        if (routingTable.get(agentIn.name)==null)//If not already in table
+        {
+            /*If it's a userAgent and has a portal already, reject. Maybe call this
+            from metaAgents, rather than start in here, so that checks can be done.*/
+            INCOMPLETE
+            /*Use systemMessages for adding, that way you can trace a route. Maybe
+            add another method for directly attatching useragents.*/
+        }
     }
     
     public void removeAgent(String name)
@@ -80,12 +94,13 @@ public class Portal extends MetaAgent
     {
         String monitorName = nameIn;
         NodeMonitor  monitor = new NodeMonitor(monitorName);
-        nodeMonitors.add(monitor);
+        nodeMonitor = monitor;
     }
     
     public void removeMonitor(String name)
     {
-        nodeMonitors.remove(monitor); // need to find way of removing monitor with requested name.
+        nodeMonitor.stop(); // need to find way of removing monitor with requested name.
+        nodeMonitor = null;
     }
 }
 

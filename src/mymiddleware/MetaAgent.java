@@ -19,6 +19,8 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
 {
     /**A thread that the agent runs on. Allows agents to always run*/
     Thread agentThread;
+    /**A name for the agent. Used as a key in routing tables.*/
+    String name;
     
     /**A method that gives the agent something to do whilst its running.
      * This should involve handling the message queue (Linked blocking queue).
