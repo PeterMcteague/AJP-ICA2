@@ -11,7 +11,9 @@ package mymiddleware;
  */
 public class Message
 {
-    String destination,sender,message;
+    protected String destination;
+    protected String sender;
+    protected String message;
 
     public Message(String destination, String sender, String message)
     {

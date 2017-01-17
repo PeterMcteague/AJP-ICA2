@@ -22,64 +22,17 @@ public class Portal extends MetaAgent
     public Portal(String portalName)
     {
         name = portalName;
-        agentThread = new Thread();
+        updater = new AgentRegisterer();
         routingTable = new Hashtable<String,MetaAgent>(); 
     }
     
-    @Override    
-    public void run()
+    public boolean attach(MetaAgent agentIn)
     {
-        while (!agentThread.isInterrupted())
+        if (routingTable.get(agentIn.name)==null)//If not already in table
         {
-                if (!this.isEmpty())
-            {
-                recieveMessage();
-            }
-            else
-            {
-                synchronized(this)
-                {
-                    try{
-                        this.wait();
-                    } 
-                    catch (InterruptedException ex){
-                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        }
-    }
-    @Override
-    public synchronized boolean recieveMessage() 
-    {
-        if(!this.isEmpty())
-        {
-            Message incomingMessage = (Message) this.poll();
-            //If the message is not for the portal, but for it to relay.
-            if (!incomingMessage.destination.equals(name))
-            {
-                sendMessage(incomingMessage);
-            }
-            return true;
-        }
-        return false;
-    }
-    
-    public void sendMessage(Message message)
-    {
-        if (routingTable.get(message.destination) != null)
-        {
-            routingTable.get(message.destination).offer(message);//Offer message to 
-        }        
-    }
-
-    public boolean attachMonitor(String nameIn)
-    {
-        if (nodeMonitor == null)
-        {
-            String monitorName = nameIn;
-            NodeMonitor  monitor = new NodeMonitor(monitorName);
-            nodeMonitor = monitor;
+            System.out.println(agentIn.name + " is not in this portals table and is being added.");
+            routingTable.put(agentIn.name, agentIn);
+            updater.registerAgent(agentIn, this);
             return true;
         }
         return false;
@@ -95,6 +48,84 @@ public class Portal extends MetaAgent
         return false;
     }
     
+    public boolean attachUserAgent(UserAgent agentIn)
+    {
+        if (agentIn.isAttached())
+        {
+            if (!routingTable.containsKey(agentIn.name))
+            {
+                this.routingTable.put(agentIn.name, agentIn);
+                return true;
+            }
+        }
+        return false;
+    }
+       
+    @Override    
+    public void run()
+    {
+        System.out.println(this.name + " is running.");
+        while (!agentThread.isInterrupted())
+        {
+            if (!this.isEmpty())
+            {
+                System.out.println(this.name + " has detected a message.");
+                recieveMessage();
+            }
+            else
+            {
+                suspended = true;
+                synchronized(this)
+                {
+                    try{
+                        while(suspended) 
+                        {
+                            System.out.println(name + " is waiting..");
+                            wait();
+                        }
+                    } 
+                    catch (InterruptedException ex){
+                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        }
+    }
+    @Override
+    public synchronized boolean recieveMessage() 
+    {
+        if(!this.isEmpty())
+        {
+            Message incomingMessage = (Message) this.poll();
+            if (nodeMonitor != null)
+            {
+                nodeMonitor.add(incomingMessage);
+                nodeMonitor.resume();
+            }
+            //If the message is not for the portal, but for it to relay.
+            if (!incomingMessage.destination.equals(name))
+            {
+                System.out.println("This is not for " + name + "but is instead for " + incomingMessage.destination + ". Sending.");
+                sendMessage(incomingMessage);
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    public void sendMessage(Message message)
+    {
+        if (routingTable.get(message.destination) != null)
+        {
+            System.out.println("There is a key in " + name + "'s routing table for " + message.destination);
+            System.out.println("The value is " + routingTable.get(message.destination).name);
+            routingTable.get(message.destination).offer(message);//Offer message to 
+            routingTable.get(message.destination).resume();
+            System.out.println("Message offered to " + routingTable.get(message.destination) + " by " + name);
+            
+        }        
+    }
+   
     public boolean removeMonitor()
     {
         if (nodeMonitor != null)
@@ -106,28 +137,14 @@ public class Portal extends MetaAgent
         return false;
     }
     
-    public boolean attachUserAgent(UserAgent agentIn)
+    public NodeMonitor addNewMonitor()
     {
-        if (agentIn.isAttachedToPortal() == true)
+        if (nodeMonitor == null)
         {
-            if (!routingTable.containsKey(agentIn.name))
-            {
-                agentIn.attachToPortal(this);
-                this.routingTable.put(agentIn.name, agentIn);
-                return true;
-            }
+            nodeMonitor = new NodeMonitor(this.name);
+            return nodeMonitor;
         }
-        return false;
-    }
-    
-    public boolean attachPortal(Portal portalIn)
-    {
-        if (routingTable.get(portalIn.name)==null)//If not already in table
-        {
-            routingTable.put(portalIn.name, portalIn);
-            return true;
-        }
-        return false;
+        return null;
     }
     
     public boolean registerAgent(String agentName)
@@ -140,21 +157,49 @@ public class Portal extends MetaAgent
         }
         return false;
     }
-
-    public void registerPortal(String portalName)
-    {
-        updater.registerPortal(this);
-    }
     
     public boolean removeAgent(String name)
     {
-        if (routingTable.containsKey(name))
+        if (routingTable.containsKey(name) && routingTable.get(name).equals(this))
         {
             MetaAgent agent = routingTable.get(name);
+            routingTable.remove(name);
             updater.unregisterAgent(agent);
+            return true;
+        }
+        else if (routingTable.containsKey(name))
+        {
+            routingTable.remove(name);
             return true;
         }
         return false;
     }
+
+    public void registerPortal()
+    {
+        updater.registerPortal(this);
+    }
+
+    @Override
+    public void start () {
+        updater.addPortal(this);
+        System.out.println("Starting " + name);
+        if (agentThread == null) {
+            agentThread = new Thread (this);
+        agentThread.start ();
+        }
+    }
+   
+    @Override
+    public void suspend() {
+      suspended = true;
+    }
+   
+    @Override
+    public synchronized void resume() {
+        System.out.println(name + " has resumed.");
+        suspended = false;
+        notify();
+   }
 }
 

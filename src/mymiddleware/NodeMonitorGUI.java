@@ -12,6 +12,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 /**
@@ -34,13 +35,14 @@ public class NodeMonitorGUI extends JFrame{
         //Setting up the JFrame for the monitor
         monitor = monitorIn;
         output = new JTextArea(5, 20);
+        JScrollPane scroll = new JScrollPane(output); 
         output.setLineWrap(true);
         output.setWrapStyleWord(true);
         output.setEditable(false);  
         panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.add(new JLabel("Output:"),BorderLayout.PAGE_START);
-        panel.add(output,BorderLayout.CENTER);
+        panel.add(scroll,BorderLayout.CENTER);
         initialize(nameIn);
     }
     

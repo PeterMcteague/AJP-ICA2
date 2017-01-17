@@ -9,7 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.*;
 
 /**NodeMonitor - A class for monitoring node actions.
  *
@@ -20,7 +19,6 @@ import javax.swing.*;
  */
 public class NodeMonitor extends MetaAgent
 {
-    protected String name;
     private final NodeMonitorGUI gui;
     
     /**NodeMonitor(String) - Creates and names a NodeMonitor.
@@ -32,7 +30,6 @@ public class NodeMonitor extends MetaAgent
     public NodeMonitor(String nameIn)
     {
         name = nameIn;
-        agentThread = new Thread();
         gui = new NodeMonitorGUI(nameIn,this);
     }
     
@@ -43,6 +40,7 @@ public class NodeMonitor extends MetaAgent
     @Override    
     public void run() 
     {
+        System.out.println(name + " is running..");
         //While the thread hasn't been interrupted.
         while (!agentThread.isInterrupted())
         {
@@ -54,14 +52,19 @@ public class NodeMonitor extends MetaAgent
             //Otherwise we should sleep until there's something in the queue.
             else
             {
+                suspended = true;
                 //We synchronize this, to own the monitor (Makes wait possible).
                 synchronized(this)
                 {
                     try{
-                        this.wait();
+                        while(suspended) 
+                        {
+                            System.out.println(name + " is waiting..");
+                            wait();
+                        }
                     } 
                     catch (InterruptedException ex){
-                        Logger.getLogger(NodeMonitor.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, "Node monitor" + name + " has stopped.", ex);
                     }
                 }
             }
@@ -94,14 +97,36 @@ public class NodeMonitor extends MetaAgent
         //If the queue isn't empty.
         if(!this.isEmpty())
         {
+            System.out.println(name + " has recieved a message.");
             Calendar calendarInstance = Calendar.getInstance();
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
             Message incomingMessage = (Message) this.poll();
             //Add message recieved with timestamp to the output on the GUI.
             gui.addToOutput(dateFormat.format(calendarInstance.getTime()) + ": " + incomingMessage.toString() + "\n");
+            gui.addToOutput("");
             return true;
         }
         return false;
     }
-    
+
+    @Override
+    public void start () {
+        System.out.println("Starting " + name);
+        if (agentThread == null) {
+            agentThread = new Thread (this);
+            agentThread.start ();
+        }
+    }
+   
+    @Override
+    public void suspend() {
+      suspended = true;
+    }
+   
+    @Override
+    public synchronized void resume() {
+        System.out.println(name + " has resumed.");
+        suspended = false;
+        notify();
+   }
 }

@@ -6,6 +6,7 @@
 package mymiddleware;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**A class for proper registering of agents across all agents.
  * A list of all portals is kept and existing portals are updated with ways to 
@@ -14,7 +15,12 @@ import java.util.ArrayList;
  */
 public class AgentRegisterer 
 {
-    private ArrayList<Portal> portals;//A list of every portal in the system.
+    private List<Portal> portals;//A list of every portal in the system.
+    
+    public AgentRegisterer()
+    {
+        portals = new ArrayList<>();
+    }
     
     /**registerAgent - Registers an agent with all portals.
      * 
@@ -25,8 +31,9 @@ public class AgentRegisterer
     {
         for (Portal p : portals)
         {
-            if (p != attachedPortal)
+            if (p != attachedPortal && p != agentIn)
             {
+                System.out.println("REGISTERING AGENT");
                 p.routingTable.put(agentIn.name, p.routingTable.get(attachedPortal.name));
             }
         }
@@ -68,7 +75,11 @@ public class AgentRegisterer
                }
             }
         }
-        portals.add((Portal) agentIn);//Add new portal to list of portals.
+        if (!portals.contains(agentIn))
+        {
+            portals.add((Portal) agentIn);//Add new portal to list of portals.
+        }
+        System.out.println("New list of portals: " + portals);
     }
     
     /**For finding a reference for a portal that is not attached to a new portal.
@@ -93,5 +104,18 @@ public class AgentRegisterer
             }
         }
         return null;
+    }
+    
+    public void addPortal(Portal in)
+    {
+        if (!portals.contains(in))
+        {
+            portals.add(in);
+            System.out.println("Updater added portal " + in.name);
+        }
+        else
+        {
+            System.out.println("Already in updater.");
+        }
     }
 }

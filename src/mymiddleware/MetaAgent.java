@@ -21,6 +21,8 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
     Thread agentThread;
     /**A name for the agent. Used as a key in routing tables.*/
     String name;
+    /**Whether the runnable has been suspended or not**/
+    Boolean suspended;
     
     /**A method that gives the agent something to do whilst its running.
      * This should involve handling the message queue (Linked blocking queue).
@@ -33,4 +35,10 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
      * @return Returns whether the handling was successful.
      */
     public abstract boolean recieveMessage(); 
+    
+    public abstract void start ();
+   
+    public abstract void suspend();
+   
+    public abstract void resume();
 }

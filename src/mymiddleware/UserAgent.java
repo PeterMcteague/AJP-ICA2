@@ -17,9 +17,19 @@ public class UserAgent extends MetaAgent implements Runnable{
     
     private Portal portal;
     
+    public UserAgent(String nameIn) {
+        name = nameIn;
+        agentThread = new Thread(this);
+    }
+    
     public void sendMessage(String destination, String message) 
     {
-        portal.add(new Message(destination,name,message));
+        synchronized(this)
+        {
+            portal.add(new Message(destination,name,message));
+            portal.resume();
+            System.out.println(name + " has added a message to the queue of " + portal.name + ".");
+        }
     }
 
     @Override
@@ -33,15 +43,9 @@ public class UserAgent extends MetaAgent implements Runnable{
         return false;
     }
     
-    public void userAgent(String nameIn) {
-        name = nameIn;
-        agentThread = new Thread();
-        agentThread.start();
-    }
-    
-    
     @Override
     public void run() {
+        System.out.println(name + " is running.");
         while (!agentThread.isInterrupted())
         {
             if (!this.isEmpty())
@@ -50,25 +54,30 @@ public class UserAgent extends MetaAgent implements Runnable{
             }
             else
             {
-               synchronized(this)
+                suspended = true;
+                synchronized(this)
                 {
                     try{
-                        this.wait();
+                        while(suspended) 
+                        {
+                            System.out.println(name + " is waiting..");
+                            wait();
+                        }
                     } 
                     catch (InterruptedException ex){
-                        Logger.getLogger(NodeMonitor.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }
         }
     }
     
-    public boolean isAttachedToPortal()
+    public boolean isAttached()
     {
         return portal != null;
     }
     
-    public boolean attachToPortal(Portal portalIn)
+    public boolean attach(Portal portalIn)
     {
         if(portalIn != null)
         {
@@ -79,7 +88,7 @@ public class UserAgent extends MetaAgent implements Runnable{
         return false;
     }
     
-    public boolean detachFromPortal(Portal portalIn)
+    public boolean detach()
     {
         if(portal != null)
         {
@@ -92,9 +101,31 @@ public class UserAgent extends MetaAgent implements Runnable{
     
 //    public boolean increaseScope(int scope) {
 //        /*Needs implementing, use updater with some method for number of steps.*/
+//        
 //    }
-    
+//    
 //    public boolean decreaseScope(int scope) {
 //        /*Needs implementing, use updater with some method for number of steps.*/
 //    }
+
+    @Override
+    public void start () {
+        System.out.println("Starting " + name);
+        if (agentThread == null) {
+            agentThread = new Thread (this);
+         agentThread.start ();
+        }
+    }
+   
+    @Override
+    public void suspend() {
+        suspended = true;
+    }
+   
+    @Override
+    public synchronized void resume() {
+        System.out.println(name + " has resumed.");
+        suspended = false;
+        notify();
+   }
 }
