@@ -36,9 +36,12 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
      */
     public abstract boolean recieveMessage(); 
     
+    /**Start the thread for that agent*/
     public abstract void start ();
    
+    /**Put the thread for the agent into a suspended state*/
     public abstract void suspend();
    
+    /**Resumes the thread for the suspended state.*/
     public abstract void resume();
 }

@@ -5,7 +5,7 @@
  */
 package mymiddleware;
 
-/**
+/**A superclass representing messages to be sent between agents.
  *
  * @author Joseph
  */
@@ -15,6 +15,12 @@ public class Message
     protected String sender;
     protected String message;
 
+    /**A constructor for the message.
+     * 
+     * @param destination - The name for the destination of the message.
+     * @param sender - The name of agent sending the message.
+     * @param message  - The message itself.
+     */
     public Message(String destination, String sender, String message)
     {
         this.destination = destination;
@@ -22,6 +28,10 @@ public class Message
         this.sender = sender;
     }
 
+    /**toString() - Sets the string returned when printing the message.
+     * Currently used to show messages on the nodemonitor.
+     * @return - The message for printing.
+     */
     @Override
     public String toString() 
     {

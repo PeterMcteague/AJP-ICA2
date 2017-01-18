@@ -10,13 +10,14 @@ import java.util.List;
 
 /**A class for proper registering of agents across all agents.
  * A list of all portals is kept and existing portals are updated with ways to 
- * find new agents that are added.
+ * find new metaagents that are added.
  * @author 07mct
  */
 public class AgentRegisterer 
 {
     private List<Portal> portals;//A list of every portal in the system.
     
+    /**A constructor an AgentRegisterer object.*/
     public AgentRegisterer()
     {
         portals = new ArrayList<>();
@@ -106,6 +107,10 @@ public class AgentRegisterer
         return null;
     }
     
+    /**Adds a portal to the list of portals.
+     * 
+     * @param in - The portal to be added.
+     */
     public void addPortal(Portal in)
     {
         if (!portals.contains(in))

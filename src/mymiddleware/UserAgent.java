@@ -54,6 +54,7 @@ public class UserAgent extends MetaAgent implements Runnable{
             }
             else
             {
+                System.out.println(name + " has an empty queue.");
                 suspended = true;
                 synchronized(this)
                 {
@@ -127,5 +128,6 @@ public class UserAgent extends MetaAgent implements Runnable{
         System.out.println(name + " has resumed.");
         suspended = false;
         notify();
+        run();
    }
 }

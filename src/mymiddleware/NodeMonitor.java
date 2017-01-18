@@ -19,6 +19,7 @@ import java.util.logging.Logger;
  */
 public class NodeMonitor extends MetaAgent
 {
+    /**A pointer to the GUI for the nodeMonitor.*/
     private final NodeMonitorGUI gui;
     
     /**NodeMonitor(String) - Creates and names a NodeMonitor.
@@ -109,6 +110,7 @@ public class NodeMonitor extends MetaAgent
         return false;
     }
 
+    /**Starts the thread for the nodemonitor.*/
     @Override
     public void start () {
         System.out.println("Starting " + name);
@@ -118,15 +120,18 @@ public class NodeMonitor extends MetaAgent
         }
     }
    
+    /**Suspends the thread for the nodemonitor.*/
     @Override
     public void suspend() {
       suspended = true;
     }
    
+    /**Resumes the thread from a suspended state.*/
     @Override
     public synchronized void resume() {
         System.out.println(name + " has resumed.");
         suspended = false;
         notify();
+        run();
    }
 }
