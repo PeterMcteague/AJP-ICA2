@@ -15,7 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-/**A JFrame to show the nodemonitor to a user.
+/**
  *
  * @author 07mct
  */

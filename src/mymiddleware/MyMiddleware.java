@@ -8,9 +8,7 @@ package mymiddleware;
 import static java.lang.Thread.sleep;
 import java.util.Scanner;
 
-/**The driver class for the middleware.
- * 
- * Contains demonstrations that the middleware works to an acceptable standard.
+/**
  *
  * @author Peter
  */
@@ -18,15 +16,8 @@ public class MyMiddleware {
 
     public static Scanner scanner = new Scanner(System.in);
     
-    /**testOne() - A series of commands demoing how two useragents would be 
-     * attatched to a portal and showing how a message would be sent from one
-     * to another.
-     * 
-     * @throws InterruptedException 
-     */
     private void testOne() throws InterruptedException
     {
-        System.out.println("Close the nodemonitor or stop the program to exit..\n");
         UserAgent agent1 = new UserAgent("agent1");
         UserAgent agent2 = new UserAgent("agent2");
         agent1.start();
@@ -38,18 +29,13 @@ public class MyMiddleware {
         NodeMonitor testMonitor = testPortal1.addNewMonitor();
         testMonitor.start();
         agent1.sendMessage("agent2", "First test");
+        sleep(500); //So that press enter appears at a relevant time.
+        System.out.println("Close the nodemonitor or stop the program to exit..");
         scanner.nextLine();
     }
     
-    /**testTwo() - A series of commands that show how a set of nodes consisting
-     * of two userNodes attatched to a portal each, with each portal attatched to
-     * eachother, with a message being sent from one portal to another.
-     * 
-     * @throws InterruptedException 
-     */
     private void testTwo() throws InterruptedException
     {
-        System.out.println("Close a nodemonitor or stop the program to exit..\n");
         UserAgent agent1 = new UserAgent("agent1");
         UserAgent agent2 = new UserAgent("agent2");
         Portal testPortal1 = new Portal("testPortal1");
@@ -68,14 +54,11 @@ public class MyMiddleware {
         System.out.println("Portal 1 table: " + testPortal1.routingTable.elements());
         System.out.println("Portal 2 table: " + testPortal2.routingTable.elements());
         agent1.sendMessage("agent2", "Second test");
+        sleep(500); //So that press enter appears at a relevant time.
+        System.out.println("Close a nodemonitor or stop the program to exit..");
         scanner.nextLine();
     }
     
-    /**Called by the driver class to show a list of options.
-     * 
-     * @return boolean - Whether a valid option is selected.
-     * @throws InterruptedException 
-     */
     private boolean questionAsk() throws InterruptedException
     {
         System.out.println("Type a number to select a demo.");

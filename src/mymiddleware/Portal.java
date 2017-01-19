@@ -120,8 +120,8 @@ public class Portal extends MetaAgent
         {
             System.out.println("There is a key in " + name + "'s routing table for " + message.destination);
             System.out.println("The value is " + routingTable.get(message.destination).name);
-            (routingTable.get(message.destination)).add(message);//Offer message to 
-            (routingTable.get(message.destination)).resume();
+            routingTable.get(message.destination).offer(message);//Offer message to 
+            routingTable.get(message.destination).resume();
             System.out.println("Message offered to " + routingTable.get(message.destination) + " by " + name);
             return;
         }      
@@ -156,7 +156,7 @@ public class Portal extends MetaAgent
     {
         if (nodeMonitor == null)
         {
-            nodeMonitor = new NodeMonitor(this.name);
+            nodeMonitor = new NodeMonitor(this.name + "Monitor");
             return nodeMonitor;
         }
         return null;
@@ -215,7 +215,6 @@ public class Portal extends MetaAgent
         System.out.println(name + " has resumed.");
         suspended = false;
         notify();
-        run();
    }
 }
 
