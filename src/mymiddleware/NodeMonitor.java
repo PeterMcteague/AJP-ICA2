@@ -31,46 +31,9 @@ public class NodeMonitor extends MetaAgent
     {
         name = nameIn;
         gui = new NodeMonitorGUI(nameIn,this);
+        this.start();
     }
     
-    /**run() - The run method for the nodemonitor. See runnable.
-     * @see runnable
-     * 
-     */
-    @Override    
-    public void run() 
-    {
-        System.out.println(name + " is running..");
-        //While the thread hasn't been interrupted.
-        while (!agentThread.isInterrupted())
-        {
-            //If the queue isn't empty, recieve the message
-            if (!this.isEmpty())
-            {
-                recieveMessage();
-            }
-            //Otherwise we should sleep until there's something in the queue.
-            else
-            {
-                suspended = true;
-                //We synchronize this, to own the monitor (Makes wait possible).
-                synchronized(this)
-                {
-                    try{
-                        while(suspended) 
-                        {
-                            System.out.println(name + " is waiting..");
-                            wait();
-                        }
-                    } 
-                    catch (InterruptedException ex){
-                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, "Node monitor" + name + " has stopped.", ex);
-                    }
-                }
-            }
-        }
-    }
-
     /**Closes the GUI and stops the nodemonitor from running.
      * 
      * Make sure to dereference the nodemonitor for garbage disposal.
@@ -108,21 +71,9 @@ public class NodeMonitor extends MetaAgent
         }
         return false;
     }
-
-    @Override
-    public void start () {
-        System.out.println("Starting " + name);
-        if (agentThread == null) {
-            agentThread = new Thread (this);
-            agentThread.start ();
-        }
-    }
    
-    @Override
-    public void suspend() {
-      suspended = true;
-    }
-   
+    /*Can't use the one from metaagent because running this causes it to never 
+    give another object a chance to run.*/
     @Override
     public synchronized void resume() {
         System.out.println(name + " has resumed.");

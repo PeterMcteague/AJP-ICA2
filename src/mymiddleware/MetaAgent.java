@@ -6,6 +6,8 @@
 package mymiddleware;
 
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**MetaAgent - A class to create MetaAgents from.
  * 
@@ -28,17 +30,69 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
      * This should involve handling the message queue (Linked blocking queue).
      */
     @Override
-    public abstract void run();
+    public void run() 
+    {
+        System.out.println(name + " is running..");
+        //While the thread hasn't been interrupted.
+        while (!agentThread.isInterrupted())
+        {
+            //If the queue isn't empty, recieve the message
+            if (!this.isEmpty())
+            {
+                recieveMessage();
+            }
+            //Otherwise we should sleep until there's something in the queue.
+            else
+            {
+                suspended = true;
+                //We synchronize this, to own the monitor (Makes wait possible).
+                synchronized(this)
+                {
+                    try{
+                        while(suspended) 
+                        {
+                            System.out.println(name + " is waiting..");
+                            wait();
+                        }
+                    } 
+                    catch (InterruptedException ex){
+                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, "Node monitor" + name + " has stopped.", ex);
+                    }
+                }
+            }
+        }
+    }
     
     /**recieveMessage - Receive and handle the message on the end of the queue.
      * 
      * @return Returns whether the handling was successful.
      */
-    public abstract boolean recieveMessage(); 
+    public boolean recieveMessage() {
+        if(!this.isEmpty())
+        {
+            Message incomingMessage = (Message) this.poll();
+            System.out.println(name + " recieved message: " + incomingMessage.toString());
+            return true;
+        }
+        return false;
+    } 
     
-    public abstract void start ();
+    public void start () {
+        System.out.println("Starting " + name);
+        if (agentThread == null) {
+            agentThread = new Thread (this);
+            agentThread.start ();
+        }
+    }
    
-    public abstract void suspend();
+    public void suspend() {
+        suspended = true;
+    }
    
-    public abstract void resume();
+    public synchronized void resume() {
+        System.out.println(name + " has resumed.");
+        suspended = false;
+        notify();
+        run();
+   }
 }

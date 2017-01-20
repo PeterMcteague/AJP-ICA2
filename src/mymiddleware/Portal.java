@@ -24,6 +24,7 @@ public class Portal extends MetaAgent
         name = portalName;
         updater = new AgentRegisterer();
         routingTable = new Hashtable<String,MetaAgent>(); 
+        this.start();
     }
     
     public boolean attach(MetaAgent agentIn)
@@ -61,36 +62,6 @@ public class Portal extends MetaAgent
         return false;
     }
        
-    @Override    
-    public void run()
-    {
-        System.out.println(this.name + " is running.");
-        while (!agentThread.isInterrupted())
-        {
-            if (!this.isEmpty())
-            {
-                System.out.println(this.name + " has detected a message.");
-                recieveMessage();
-            }
-            else
-            {
-                suspended = true;
-                synchronized(this)
-                {
-                    try{
-                        while(suspended) 
-                        {
-                            System.out.println(name + " is waiting..");
-                            wait();
-                        }
-                    } 
-                    catch (InterruptedException ex){
-                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        }
-    }
     @Override
     public synchronized boolean recieveMessage() 
     {
@@ -198,23 +169,7 @@ public class Portal extends MetaAgent
     @Override
     public void start () {
         updater.addPortal(this);
-        System.out.println("Starting " + name);
-        if (agentThread == null) {
-            agentThread = new Thread (this);
-        agentThread.start ();
-        }
+        super.start();
     }
-   
-    @Override
-    public void suspend() {
-      suspended = true;
-    }
-   
-    @Override
-    public synchronized void resume() {
-        System.out.println(name + " has resumed.");
-        suspended = false;
-        notify();
-   }
 }
 

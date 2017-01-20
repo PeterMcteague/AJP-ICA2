@@ -20,14 +20,10 @@ public class MyMiddleware {
     {
         UserAgent agent1 = new UserAgent("agent1");
         UserAgent agent2 = new UserAgent("agent2");
-        agent1.start();
-        agent2.start();
         Portal testPortal1 = new Portal("testPortal1");
-        testPortal1.start();
         agent1.attach(testPortal1);
         agent2.attach(testPortal1);
         NodeMonitor testMonitor = testPortal1.addNewMonitor();
-        testMonitor.start();
         agent1.sendMessage("agent2", "First test");
         sleep(500); //So that press enter appears at a relevant time.
         System.out.println("Close the nodemonitor or stop the program to exit..");
@@ -40,14 +36,10 @@ public class MyMiddleware {
         UserAgent agent2 = new UserAgent("agent2");
         Portal testPortal1 = new Portal("testPortal1");
         Portal testPortal2 = new Portal("testPortal2");
-        testPortal1.start();
-        testPortal2.start();
         agent1.attach(testPortal1);
         agent2.attach(testPortal2);
         NodeMonitor testMonitor1 = testPortal1.addNewMonitor();
         NodeMonitor testMonitor2 = testPortal2.addNewMonitor();
-        testMonitor1.start();
-        testMonitor2.start();
         System.out.println("ATTACHING PORTALS");
         testPortal1.attach(testPortal2);
         testPortal2.attach(testPortal1);

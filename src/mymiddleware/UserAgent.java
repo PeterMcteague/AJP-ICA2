@@ -20,6 +20,7 @@ public class UserAgent extends MetaAgent implements Runnable{
     public UserAgent(String nameIn) {
         name = nameIn;
         agentThread = new Thread(this);
+        this.start();
     }
     
     public void sendMessage(String destination, String message) 
@@ -32,46 +33,6 @@ public class UserAgent extends MetaAgent implements Runnable{
         }
     }
 
-    @Override
-    public boolean recieveMessage() {
-        if(!this.isEmpty())
-        {
-            Message incomingMessage = (Message) this.poll();
-            System.out.println(name + " recieved message: " + incomingMessage.toString());
-            return true;
-        }
-        return false;
-    }
-    
-    @Override
-    public void run() {
-        System.out.println(name + " is running.");
-        while (!agentThread.isInterrupted())
-        {
-            if (!this.isEmpty())
-            {
-                recieveMessage();
-            }
-            else
-            {
-                suspended = true;
-                synchronized(this)
-                {
-                    try{
-                        while(suspended) 
-                        {
-                            System.out.println(name + " is waiting..");
-                            wait();
-                        }
-                    } 
-                    catch (InterruptedException ex){
-                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-            }
-        }
-    }
-    
     public boolean isAttached()
     {
         return portal != null;
@@ -107,26 +68,4 @@ public class UserAgent extends MetaAgent implements Runnable{
 //    public boolean decreaseScope(int scope) {
 //        /*Needs implementing, use updater with some method for number of steps.*/
 //    }
-
-    @Override
-    public void start () {
-        System.out.println("Starting " + name);
-        if (agentThread == null) {
-            agentThread = new Thread (this);
-         agentThread.start ();
-        }
-    }
-   
-    @Override
-    public void suspend() {
-        suspended = true;
-    }
-   
-    @Override
-    public synchronized void resume() {
-        System.out.println(name + " has resumed.");
-        suspended = false;
-        notify();
-        run();
-   }
 }
