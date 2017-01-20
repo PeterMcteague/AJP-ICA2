@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class MyMiddleware {
 
-    public static Scanner scanner = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in);
     
     private void testOne() throws InterruptedException
     {
@@ -27,7 +27,7 @@ public class MyMiddleware {
         agent1.sendMessage("agent2", "First test");
         sleep(500); //So that press enter appears at a relevant time.
         System.out.println("Close the nodemonitor or stop the program to exit..");
-        scanner.nextLine();
+        SCANNER.nextLine();
     }
     
     private void testTwo() throws InterruptedException
@@ -40,15 +40,12 @@ public class MyMiddleware {
         agent2.attach(testPortal2);
         NodeMonitor testMonitor1 = testPortal1.addNewMonitor();
         NodeMonitor testMonitor2 = testPortal2.addNewMonitor();
-        System.out.println("ATTACHING PORTALS");
         testPortal1.attach(testPortal2);
         testPortal2.attach(testPortal1);
-        System.out.println("Portal 1 table: " + testPortal1.routingTable.elements());
-        System.out.println("Portal 2 table: " + testPortal2.routingTable.elements());
         agent1.sendMessage("agent2", "Second test");
         sleep(500); //So that press enter appears at a relevant time.
         System.out.println("Close a nodemonitor or stop the program to exit..");
-        scanner.nextLine();
+        SCANNER.nextLine();
     }
     
     private boolean questionAsk() throws InterruptedException
@@ -58,7 +55,7 @@ public class MyMiddleware {
         System.out.println("1. Two agents connected to one portal.");
         System.out.println("2. Two portals connected to eachother, each with an agent.");
         System.out.println("0. Exit");
-        String input = scanner.nextLine();
+        String input = SCANNER.nextLine();
         if (input != null)
         {
             switch (input)

@@ -11,9 +11,9 @@ package mymiddleware;
  */
 public class Message
 {
-    protected String destination;
-    protected String sender;
-    protected String message;
+    private final String destination;
+    private final String sender;
+    private final String message;
 
     public Message(String destination, String sender, String message)
     {
@@ -28,6 +28,21 @@ public class Message
         return "Sender: " + this.sender + "\n"
                + "Message: " + this.message + "\n"
                + "Destination: " + this.destination; 
+    }
+    
+    public String getDestination()
+    {
+        return destination;
+    }
+    
+    public String getSender()
+    {
+        return sender;
+    }
+    
+    public String getMessage()
+    {
+        return message;
     }
 }
 

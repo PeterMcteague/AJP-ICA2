@@ -34,7 +34,7 @@ public class AgentRegisterer
             if (p != attachedPortal && p != agentIn)
             {
                 System.out.println("REGISTERING ROUTE WITH THIRD PARTY");
-                p.routingTable.put(agentIn.name, p.routingTable.get(attachedPortal.name));
+                p.tableAdd(agentIn.getName(), p.tableGet(attachedPortal.getName()));
             }
         }
     }
@@ -47,7 +47,7 @@ public class AgentRegisterer
     {
         for (Portal p : portals)
         {
-            p.routingTable.remove(agentIn.name);
+            p.tableRemove(agentIn.getName());
         }
     }
     
@@ -62,7 +62,7 @@ public class AgentRegisterer
     {
         for (Portal p : portals)
         {
-            if (!p.routingTable.containsValue(agentIn))
+            if (!p.tableContainsValue(agentIn))
             {
                Portal referencePortal = registerPortalSearch(p,agentIn);
                if (referencePortal != null)
@@ -71,7 +71,7 @@ public class AgentRegisterer
                    * As it will know about a portal attached to the new portal
                    * we look up its route to that in the routing table instead.
                    */
-                   p.routingTable.put(agentIn.name, p.routingTable.get(referencePortal.name));
+                   p.tableAdd(agentIn.getName(), p.tableGet(referencePortal.getName()));
                }
             }
         }
@@ -79,7 +79,6 @@ public class AgentRegisterer
         {
             portals.add((Portal) agentIn);//Add new portal to list of portals.
         }
-        System.out.println("New list of portals: " + portals);
     }
     
     /**For finding a reference for a portal that is not attached to a new portal.
@@ -92,12 +91,12 @@ public class AgentRegisterer
     public Portal registerPortalSearch(Portal distantPortal,Portal agentIn)
     {
         //For each portal in p's routing table (p2)
-        for (MetaAgent p2 : distantPortal.routingTable.values())
+        for (MetaAgent p2 : distantPortal.tableGetValues())
         {
             if (p2 instanceof Portal)
             {
                 //If p2 knows about agentIn, give p reference to p2
-                if (((Portal) p2).routingTable.containsValue(agentIn))
+                if (((Portal) p2).tableContainsValue(agentIn))
                 {
                     return (Portal) p2;
                 }
@@ -111,7 +110,7 @@ public class AgentRegisterer
         if (!portals.contains(in))
         {
             portals.add(in);
-            System.out.println("Updater added portal " + in.name);
+            System.out.println("Updater added portal " + in.getName());
         }
         else
         {

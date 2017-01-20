@@ -5,9 +5,6 @@
  */
 package mymiddleware;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 
 /**
  *
@@ -18,8 +15,8 @@ public class UserAgent extends MetaAgent implements Runnable{
     private Portal portal;
     
     public UserAgent(String nameIn) {
-        name = nameIn;
-        agentThread = new Thread(this);
+        setName(nameIn);
+        setThread(new Thread(this));
         this.start();
     }
     
@@ -27,9 +24,9 @@ public class UserAgent extends MetaAgent implements Runnable{
     {
         synchronized(this)
         {
-            portal.add(new Message(destination,name,message));
+            portal.add(new Message(destination,getName(),message));
             portal.resume();
-            System.out.println(name + " has added a message to the queue of " + portal.name + ".");
+            System.out.println(getName() + " has added a message to the queue of " + portal.getName() + ".");
         }
     }
 
@@ -53,7 +50,7 @@ public class UserAgent extends MetaAgent implements Runnable{
     {
         if(portal != null)
         {
-            portal.removeAgent(name);
+            portal.removeAgent(getName());
             portal = null;
             return true;
         }

@@ -29,7 +29,7 @@ public class NodeMonitor extends MetaAgent
      */
     public NodeMonitor(String nameIn)
     {
-        name = nameIn;
+        setName(nameIn);
         gui = new NodeMonitorGUI(nameIn,this);
         this.start();
     }
@@ -42,9 +42,9 @@ public class NodeMonitor extends MetaAgent
      */
     public void stop()
     {
-        agentThread.interrupt();
+        interruptThread();
         gui.dispose();
-        System.out.println(name + " stopped");
+        System.out.println(getName() + " stopped");
     }
     
     /**recieveMessage() - gets the message at the front of the queue and adds it to the output on the GUI, with a timestamp.
@@ -60,7 +60,7 @@ public class NodeMonitor extends MetaAgent
         //If the queue isn't empty.
         if(!this.isEmpty())
         {
-            System.out.println(name + " has recieved a message.");
+            System.out.println(getName() + " has recieved a message.");
             Calendar calendarInstance = Calendar.getInstance();
             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm");
             Message incomingMessage = (Message) this.poll();
@@ -76,8 +76,8 @@ public class NodeMonitor extends MetaAgent
     give another object a chance to run.*/
     @Override
     public synchronized void resume() {
-        System.out.println(name + " has resumed.");
-        suspended = false;
+        System.out.println(getName() + " has resumed.");
+        setSuspended(false);
         notify();
    }
 }

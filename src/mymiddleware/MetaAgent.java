@@ -20,11 +20,11 @@ import java.util.logging.Logger;
 public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
 {
     /**A thread that the agent runs on. Allows agents to always run*/
-    Thread agentThread;
+    private Thread agentThread;
     /**A name for the agent. Used as a key in routing tables.*/
-    String name;
+    private String name;
     /**Whether the runnable has been suspended or not**/
-    Boolean suspended;
+    private Boolean suspended;
     
     /**A method that gives the agent something to do whilst its running.
      * This should involve handling the message queue (Linked blocking queue).
@@ -95,4 +95,39 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
         notify();
         run();
    }
+    
+    public String getName()
+    {
+        return name;
+    }
+    
+    public void setName(String nameIn)
+    {
+        name = nameIn;
+    }
+    
+    public boolean getSuspended()
+    {
+        return suspended;
+    }
+    
+    public void setSuspended(boolean suspendIn)
+    {
+        suspended = suspendIn;
+    }
+    
+    public Thread getThread()
+    {
+        return agentThread;
+    }
+    
+    public void setThread(Thread threadIn)
+    {
+        agentThread = threadIn;
+    }
+    
+    public void interruptThread()
+    {
+        agentThread.interrupt();
+    }
 }

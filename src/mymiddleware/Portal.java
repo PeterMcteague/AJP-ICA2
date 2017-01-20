@@ -5,6 +5,8 @@
  */
 package mymiddleware;
 
+import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,13 +17,13 @@ import java.util.logging.Logger;
  */
 public class Portal extends MetaAgent
 {
-    protected NodeMonitor nodeMonitor;
+    private NodeMonitor nodeMonitor;
     private static AgentRegisterer updater;
-    protected final Hashtable<String,MetaAgent> routingTable;//May be Obsolete but hashtables are synchronised whereas hashmaps are not by default. Should function the same.
+    private final Hashtable<String,MetaAgent> routingTable;//May be Obsolete but hashtables are synchronised whereas hashmaps are not by default. Should function the same.
     
     public Portal(String portalName)
     {
-        name = portalName;
+        setName(portalName);
         updater = new AgentRegisterer();
         routingTable = new Hashtable<String,MetaAgent>(); 
         this.start();
@@ -29,10 +31,10 @@ public class Portal extends MetaAgent
     
     public boolean attach(MetaAgent agentIn)
     {
-        if (routingTable.get(agentIn.name)==null)//If not already in table
+        if (routingTable.get(agentIn.getName())==null)//If not already in table
         {
-            System.out.println(agentIn.name + " is not in " + this.name +" and is being added.");
-            routingTable.put(agentIn.name, agentIn);
+            System.out.println(agentIn.getName() + " is not in " + this.getName() +" and is being added.");
+            routingTable.put(agentIn.getName(), agentIn);
             updater.registerAgent(agentIn, this);
             return true;
         }
@@ -53,9 +55,9 @@ public class Portal extends MetaAgent
     {
         if (agentIn.isAttached())
         {
-            if (!routingTable.containsKey(agentIn.name))
+            if (!routingTable.containsKey(agentIn.getName()))
             {
-                this.routingTable.put(agentIn.name, agentIn);
+                this.routingTable.put(agentIn.getName(), agentIn);
                 return true;
             }
         }
@@ -74,9 +76,9 @@ public class Portal extends MetaAgent
                 nodeMonitor.resume();
             }
             //If the message is not for the portal, but for it to relay.
-            if (!incomingMessage.destination.equals(name))
+            if (!incomingMessage.getDestination().equals(getName()))
             {
-                System.out.println("This is not for " + name + "but is instead for " + incomingMessage.destination + ". Sending.");
+                System.out.println("This is not for " + getName() + "but is instead for " + incomingMessage.getDestination() + ". Sending.");
                 sendMessage(incomingMessage);
             }
             return true;
@@ -87,29 +89,29 @@ public class Portal extends MetaAgent
     public void sendMessage(Message message)
     {
         //If it has a direct link
-        if (routingTable.get(message.destination) != null)
+        if (routingTable.get(message.getDestination()) != null)
         {
-            System.out.println("There is a key in " + name + "'s routing table for " + message.destination);
-            System.out.println("The value is " + routingTable.get(message.destination).name);
-            routingTable.get(message.destination).offer(message);//Offer message to 
-            routingTable.get(message.destination).resume();
-            System.out.println("Message offered to " + routingTable.get(message.destination) + " by " + name);
+            System.out.println("There is a key in " + getName() + "'s routing table for " + message.getDestination());
+            System.out.println("The value is " + routingTable.get(message.getDestination()).getName());
+            routingTable.get(message.getDestination()).offer(message);//Offer message to 
+            routingTable.get(message.getDestination()).resume();
+            System.out.println("Message offered to " + routingTable.get(message.getDestination()) + " by " + getName());
             return;
         }      
         for (MetaAgent a: routingTable.values())
         {
             if (a instanceof Portal)
             {
-                if (((Portal) a).routingTable.containsKey(message.destination))
+                if (((Portal) a).routingTable.containsKey(message.getDestination()))
                 {
-                    System.out.println(((Portal) a).name + " has a route to the destination. Sending...");
+                    System.out.println(((Portal) a).getName() + " has a route to the destination. Sending...");
                     a.offer(message);
                     a.resume();
                     return;
                 }
             }
         }
-        System.out.println(name + " could not find a way to send the message.");
+        System.out.println(getName() + " could not find a way to send the message.");
     }
    
     public boolean removeMonitor()
@@ -127,7 +129,7 @@ public class Portal extends MetaAgent
     {
         if (nodeMonitor == null)
         {
-            nodeMonitor = new NodeMonitor(this.name + "Monitor");
+            nodeMonitor = new NodeMonitor(this.getName() + "Monitor");
             return nodeMonitor;
         }
         return null;
@@ -170,6 +172,50 @@ public class Portal extends MetaAgent
     public void start () {
         updater.addPortal(this);
         super.start();
+    }
+    
+    public boolean tableAdd(String nameIn,MetaAgent valueIn)
+    {
+        if (!routingTable.containsKey(nameIn) && !routingTable.containsValue(valueIn))
+        {
+            routingTable.put(nameIn, valueIn);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean tableRemove(String nameIn)
+    {
+        if (routingTable.containsKey(nameIn))
+        {
+            routingTable.remove(nameIn);
+            return true;
+        }
+        return false;
+    }
+    
+    public MetaAgent tableGet(String nameIn)
+    {
+        if (routingTable.containsKey(nameIn))
+        {
+            return routingTable.get(nameIn);
+        }
+        return null;
+    }
+    
+    public Collection<MetaAgent> tableGetValues()
+    {
+        return routingTable.values();
+    }
+    
+    public Enumeration<MetaAgent> tableGetContents()
+    {
+        return routingTable.elements();
+    }
+    
+    public boolean tableContainsValue(MetaAgent agentIn)
+    {
+        return routingTable.containsValue(agentIn);
     }
 }
 
