@@ -5,13 +5,18 @@
  */
 package mymiddleware;
 
-/**
+/**A type of message sent between useragents.
  *
  * @author Joseph
  */
 public class UserMessage extends Message
 {
-    
+    /**UserMessage(Destination,Sender,Message) - Create a usermessage
+     * 
+     * @param destination - The messages destination
+     * @param sender - The sender of the message
+     * @param message - The message text.
+     */
     public UserMessage(String destination, String sender, String message)
     {
         super(destination, sender, message);
