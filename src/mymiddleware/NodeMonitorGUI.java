@@ -15,14 +15,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-/**
+/**NodeMonitorGUI - A JFrame with elements for display of nodemonitoring.
  *
  * @author 07mct
  */
 public class NodeMonitorGUI extends JFrame{
 
+    /**A JTextArea for text to be displayed on.*/
     private final JTextArea output;
+    /**panel - A JPanel to contain elements.*/
     private final JPanel panel;
+    /**monitor - The nodemonitor that the GUI is linked to.*/
     private final NodeMonitor monitor;
     
     /**NodeMonitorGUI - A constructor for a GUI for a nodemonitor

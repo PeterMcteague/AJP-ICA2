@@ -6,35 +6,57 @@
 package mymiddleware;
 
 
-/**
+/**A userAgent is a type of metaagent that represents a system. 
+ * Attach them to portals to sent messages between them.
  *
  * @author Adam
  */
 public class UserAgent extends MetaAgent implements Runnable{
     
+    /**The portal that the agent is attached to.*/
     private Portal portal;
     
+    /**UserAgent(nameIn) - A constructor for a useragent.
+     * 
+     * @param nameIn - The name to give to the useragent
+     */
     public UserAgent(String nameIn) {
         setName(nameIn);
         setThread(new Thread(this));
         this.start();
     }
     
+    /**sendMessage(destination,message) - Creates a usermessage to sent to 
+     * another agent.
+     * 
+     * @param destination - The messages destination
+     * @param message - The message.
+     */
     public void sendMessage(String destination, String message) 
     {
         synchronized(this)
         {
-            portal.add(new Message(destination,getName(),message));
+            portal.add(new UserMessage(destination,getName(),message));
             portal.resume();
             System.out.println(getName() + " has added a message to the queue of " + portal.getName() + ".");
         }
     }
 
+    /**isAttached - whether the useragent is attached to a portal.
+     * 
+     * @return - Whether the useragent is attached to a portal.
+     */
     public boolean isAttached()
     {
         return portal != null;
     }
     
+    /**attach(portalIn) - For attaching a useragent to a portal so it can send
+     * messages. Note a useragent can only be attached to one portal.
+     * 
+     * @param portalIn - The portal to attach it to.
+     * @return - Whether it was succesful.
+     */
     public boolean attach(Portal portalIn)
     {
         if(portalIn != null)
@@ -46,6 +68,11 @@ public class UserAgent extends MetaAgent implements Runnable{
         return false;
     }
     
+    /**detach() - Detach the useragent from a portal to move it to another one,
+     * or to remove it from the system.
+     * 
+     * @return Whether it was able to be detached.
+     */
     public boolean detach()
     {
         if(portal != null)
@@ -57,12 +84,12 @@ public class UserAgent extends MetaAgent implements Runnable{
         return false;
     }
     
-//    public boolean increaseScope(int scope) {
-//        /*Needs implementing, use updater with some method for number of steps.*/
-//        
-//    }
-//    
-//    public boolean decreaseScope(int scope) {
-//        /*Needs implementing, use updater with some method for number of steps.*/
-//    }
+    /**getPortal() - Gets the portal that the agent is attached to.
+     * 
+     * @return - The attached portal object.
+     */
+    public Portal getPortal()
+    {
+        return portal;
+    }
 }

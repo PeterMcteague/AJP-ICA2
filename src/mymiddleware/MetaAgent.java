@@ -77,6 +77,7 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
         return false;
     } 
     
+    /**start() - Starts the metaagent (thread).*/
     public void start () {
         System.out.println("Starting " + name);
         if (agentThread == null) {
@@ -85,10 +86,7 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
         }
     }
    
-    public void suspend() {
-        suspended = true;
-    }
-   
+    /**resume() - Resumes the metaagent from a suspended state.*/
     public synchronized void resume() {
         System.out.println(name + " has resumed.");
         suspended = false;
@@ -96,36 +94,65 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
         run();
    }
     
+    /**getName() - Gets the name attribute of a metaagent.
+     * 
+     * @return name - Returns the name of the metaagent.
+     */
     public String getName()
     {
         return name;
     }
     
+    /**setName() - Sets the name attribute of a metaagent.
+     * NOTE: There's no check for it, but giving an agent the same name
+     * as another one in a portal will mean that it cannot be added to the portal.
+     * 
+     * @param nameIn - The name to give to the metaagent.
+     */
     public void setName(String nameIn)
     {
         name = nameIn;
     }
     
+    /**getSuspended() - Returns the value of suspended.
+     * 
+     * @return suspended - Whether the agent is suspended.
+     */
     public boolean getSuspended()
     {
         return suspended;
     }
     
+    /**setSuspended() - Sets the value of suspended.
+     * 
+     * @param suspendIn - The value for suspended to be set to.
+     */
     public void setSuspended(boolean suspendIn)
     {
         suspended = suspendIn;
     }
     
+    /**getThread() - Gets the thread object that the agent is running on.
+     * 
+     * @return - The thread.
+     */
     public Thread getThread()
     {
         return agentThread;
     }
     
+    /**setThread - For setting a thread for the agent to run on.
+     * 
+     * @param threadIn - The thread for the agent to run on.
+     */
     public void setThread(Thread threadIn)
     {
         agentThread = threadIn;
     }
     
+    /**interruptThread() - Interrupts the agents thread.
+     * 
+     */
     public void interruptThread()
     {
         agentThread.interrupt();

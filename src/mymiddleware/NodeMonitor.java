@@ -19,12 +19,10 @@ import java.util.logging.Logger;
  */
 public class NodeMonitor extends MetaAgent
 {
+    /**A GUI to display information from the nodemonitor on.*/
     private final NodeMonitorGUI gui;
     
     /**NodeMonitor(String) - Creates and names a NodeMonitor.
-     * 
-     * Remember to call .agentThread.start on the monitor after creation.
-     * 
      * @param nameIn - The name to give to a NodeMonitor.
      */
     public NodeMonitor(String nameIn)
@@ -72,8 +70,10 @@ public class NodeMonitor extends MetaAgent
         return false;
     }
    
-    /*Can't use the one from metaagent because running this causes it to never 
-    give another object a chance to run.*/
+    /**resume() - Resumes the running of the metaagent if its sleeping.
+     * 
+     *Can't use the one from metaagent because running this causes it to never 
+     *give another object a chance to run.*/
     @Override
     public synchronized void resume() {
         System.out.println(getName() + " has resumed.");

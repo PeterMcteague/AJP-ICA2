@@ -8,14 +8,21 @@ package mymiddleware;
 import static java.lang.Thread.sleep;
 import java.util.Scanner;
 
-/**
+/**A driver class for the middleware. 
+ * Provides two demo cases and shows that they run in the system correctly.
  *
  * @author Peter
  */
 public class MyMiddleware {
 
+    /**A scanner for detecting user input.*/
     private static final Scanner SCANNER = new Scanner(System.in);
     
+    /**testOne() - A demo that shows that two agents attatched to a portal
+     * can send messages to eachother.
+     * 
+     * @throws InterruptedException 
+     */
     private void testOne() throws InterruptedException
     {
         UserAgent agent1 = new UserAgent("agent1");
@@ -23,13 +30,19 @@ public class MyMiddleware {
         Portal testPortal1 = new Portal("testPortal1");
         agent1.attach(testPortal1);
         agent2.attach(testPortal1);
-        NodeMonitor testMonitor = testPortal1.addNewMonitor();
+        testPortal1.addMonitor();
+        NodeMonitor testMonitor = testPortal1.getMonitor();
         agent1.sendMessage("agent2", "First test");
         sleep(500); //So that press enter appears at a relevant time.
         System.out.println("Close the nodemonitor or stop the program to exit..");
         SCANNER.nextLine();
     }
     
+    /**testTwo() - A demo that shows that a useragent can send a message to
+     * another through two portals.
+     * 
+     * @throws InterruptedException 
+     */
     private void testTwo() throws InterruptedException
     {
         UserAgent agent1 = new UserAgent("agent1");
@@ -38,8 +51,10 @@ public class MyMiddleware {
         Portal testPortal2 = new Portal("testPortal2");
         agent1.attach(testPortal1);
         agent2.attach(testPortal2);
-        NodeMonitor testMonitor1 = testPortal1.addNewMonitor();
-        NodeMonitor testMonitor2 = testPortal2.addNewMonitor();
+        testPortal1.addMonitor();
+        testPortal2.addMonitor();
+        NodeMonitor testMonitor1 = testPortal1.getMonitor();
+        NodeMonitor testMonitor2 = testPortal2.getMonitor();
         testPortal1.attach(testPortal2);
         testPortal2.attach(testPortal1);
         agent1.sendMessage("agent2", "Second test");
@@ -48,6 +63,12 @@ public class MyMiddleware {
         SCANNER.nextLine();
     }
     
+    /**questionAsk() - A menu for demo purposes that asks the user to choose
+     * a demo to run.
+     * 
+     * @return - Whether the user answered the question correctly or not.
+     * @throws InterruptedException 
+     */
     private boolean questionAsk() throws InterruptedException
     {
         System.out.println("Type a number to select a demo.");
@@ -86,14 +107,14 @@ public class MyMiddleware {
         return false;
     }
     
-    /**The driver class for the middleware to show it working.
+    /**main() - The driver class for the middleware to show it working.
      * @param args the command line arguments
      * @throws java.lang.InterruptedException
      */
     public static void main(String[] args) throws InterruptedException
     {
         MyMiddleware instance = new MyMiddleware();
-        if (instance.questionAsk()== false)
+        if (!instance.questionAsk())
         {
             instance.questionAsk();
         }

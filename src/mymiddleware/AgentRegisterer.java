@@ -17,6 +17,7 @@ public class AgentRegisterer
 {
     private List<Portal> portals;//A list of every portal in the system.
     
+    /**AgentRegisterer() - A constructor for the AgentRegisterer.*/
     public AgentRegisterer()
     {
         portals = new ArrayList<>();
@@ -33,7 +34,6 @@ public class AgentRegisterer
         {
             if (p != attachedPortal && p != agentIn)
             {
-                System.out.println("REGISTERING ROUTE WITH THIRD PARTY");
                 p.tableAdd(agentIn.getName(), p.tableGet(attachedPortal.getName()));
             }
         }
@@ -105,16 +105,43 @@ public class AgentRegisterer
         return null;
     }
     
-    public void addPortal(Portal in)
+    /**addPortal() - Adds a portal to the list of portals known by the system.
+     * 
+     * @param in - The portal to add.
+     * @return - Whether the operation was successful.
+     */
+    public boolean addPortal(Portal in)
     {
         if (!portals.contains(in))
         {
             portals.add(in);
             System.out.println("Updater added portal " + in.getName());
+            return true;
         }
         else
         {
             System.out.println("Already in updater.");
+            return false;
+        }
+    }
+    
+    /**removePortal() - Removes a portal to the list of portals known by the system.
+     * 
+     * @param in - The portal to remove.
+     * @return - Whether the operation was successful.
+     */
+    public boolean removePortal(Portal in)
+    {
+        if (!portals.contains(in))
+        {
+            portals.remove(in);
+            System.out.println("Updater removed portal " + in.getName());
+            return true;
+        }
+        else
+        {
+            System.out.println("Not in updater.");
+            return false;
         }
     }
 }
