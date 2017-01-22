@@ -19,9 +19,6 @@ public class Portal extends MetaAgent
 {
     /**An optional nodemonitor for visual monitoring of the portal.*/
     private NodeMonitor nodeMonitor;
-    /**An agentregisterer shared between all portals. Is used for management 
-     * of portals.*/
-    private static AgentRegisterer updater;
     /**A map of agents used for routing messages to their intended location.*/
     private final Hashtable<String,MetaAgent> routingTable;//May be Obsolete but hashtables are synchronised whereas hashmaps are not by default. Should function the same.
     
@@ -32,7 +29,10 @@ public class Portal extends MetaAgent
     public Portal(String portalName)
     {
         setName(portalName);
-        updater = new AgentRegisterer();
+        if (getUpdater() == null)
+        {
+            setUpdater(new AgentRegisterer());
+        }
         routingTable = new Hashtable<String,MetaAgent>(); 
         this.start();
     }
@@ -48,7 +48,7 @@ public class Portal extends MetaAgent
         {
             System.out.println(agentIn.getName() + " is not in " + this.getName() +" and is being added.");
             routingTable.put(agentIn.getName(), agentIn);
-            updater.registerAgent(agentIn, this);
+            getUpdater().registerAgent(agentIn, this);
             return true;
         }
         return false;
@@ -197,7 +197,7 @@ public class Portal extends MetaAgent
         //If the agent belongs to this portal.
         if (routingTable.containsKey(agentName) && routingTable.get(agentName).equals(this))
         {
-           updater.registerAgent(routingTable.get(agentName), this);
+           getUpdater().registerAgent(routingTable.get(agentName), this);
            return true;
         }
         return false;
@@ -215,7 +215,7 @@ public class Portal extends MetaAgent
         {
             MetaAgent agent = routingTable.get(name);
             routingTable.remove(name);
-            updater.unregisterAgent(agent);
+            getUpdater().unregisterAgent(agent);
             return true;
         }
         //Or if it's remote.
@@ -231,7 +231,7 @@ public class Portal extends MetaAgent
      portal off the grid, so to speak.*/
     public void registerPortal()
     {
-        updater.registerPortal(this);
+        getUpdater().registerPortal(this);
     }
 
     /**tableAdd(nameIn,valueIn) - Adds a key value pair to the table.

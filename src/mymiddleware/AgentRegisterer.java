@@ -144,4 +144,91 @@ public class AgentRegisterer
             return false;
         }
     }
+    
+    /**scopeDown(agent,steps) - Scopes down the references to a given agent, by
+     * X steps.
+     * 
+     * @param agent - The agent to scope down references to.
+     * @param steps - The number of steps to scope down by.
+     */
+    public void scopeDown(MetaAgent agent, int steps)
+    {
+        //Getting the highest scope portals for the agent.
+        List<Portal> tempList = portals;
+        for (Portal p : portals)
+        {
+            for (Portal q: portals)
+            {
+                /*If a portal contains this portal as its route to the agent
+                * remove it. This leaves the outermost portal from agent.*/
+                if (q.tableGet(agent.getName()).equals(p))
+                {
+                    tempList.remove(p);
+                }
+            }
+        }
+        /*Templist now contains the outermost portals from the agent.
+          Now we need to scope back by removing references steps times.*/
+        for (Portal p : tempList)
+        {
+            //Take the outermost portals
+            Portal q = p; 
+            Portal r;
+            //For the number of steps
+            for(int i=steps; i<0; i--)
+            {
+                /*If it references another portal , remove the reference and
+                switch to the referenced portal*/
+                if (q.tableGet(agent.getName()) instanceof Portal)
+                {
+                    r = (Portal) q.tableGet(agent.getName());
+                    q.removeAgent(agent.getName());
+                    q = r;
+                }
+                /*Or if it directly references the agent, we remove the reference
+                and stop.*/
+                else
+                {
+                    q.removeAgent(agent.getName());
+                    break;
+                }
+            }
+        }
+    }
+    
+    /**scopeDown(agent,steps) - Scopes up the references to a given agent, by
+     * X steps.
+     * 
+     * @param agent - The agent to increase the scope of references to.
+     * @param steps - The number of nodes to scope up by.
+     */
+    public void scopeUp(MetaAgent agent, int steps)
+    {
+        //For the number of steps
+        for(int i=steps; i<0; i--)
+        {
+            //For all portals
+            for (Portal p : portals)
+            {
+                //If the portal contains a reference to the agent
+                if (p.tableGet(agent.getName()) != null)
+                {
+                    //For the portals in the routing table of the portal
+                    for (MetaAgent q : p.tableGetValues())
+                    {
+                        //If the portal is directly linked to this one.
+                        if (q instanceof Portal && p.tableGet(q.getName()) == q)
+                        {
+                            /*If that portal doesn't have a reference to the agent
+                            add one.*/
+                            if ((Portal) ((Portal) q).tableGet(agent.getName()) == null)
+                            {
+                                ((Portal) q).tableAdd(agent.getName(), p);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

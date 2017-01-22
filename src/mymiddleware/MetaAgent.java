@@ -19,6 +19,9 @@ import java.util.logging.Logger;
  */
 public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
 {
+    /**An agentregisterer shared between all portals. Is used for management 
+     * of portals.*/
+    private static AgentRegisterer updater;
     /**A thread that the agent runs on. Allows agents to always run*/
     private Thread agentThread;
     /**A name for the agent. Used as a key in routing tables.*/
@@ -156,5 +159,52 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
     public void interruptThread()
     {
         agentThread.interrupt();
+    }
+    
+    /**scopeDown(scopeSteps) - Decrease the scope of portals that can find this 
+     * agent.
+     * 
+     * @param scopeSteps - The number of stages to decrease the scope by.
+     */
+    public void scopeDown(int scopeSteps)
+    {
+        this.getUpdater().scopeDown(this, scopeSteps);
+    }
+    
+    /**scopeUp(scopeSteps) - Increase the scope of portals that can find this 
+     * agent.
+     * 
+     * @param scopeSteps - The number of stages to decrease the scope by.
+     */
+    public void scopeUp(int scopeSteps)
+    {
+        this.getUpdater().scopeDown(this, scopeSteps);
+    }
+    
+    /**getUpdater() - Gets the updater object. As it's a single static object,
+     * perhaps this is a silly way to do it and it should just have a different
+     * access modifier.
+     * 
+     * @return - the AgentRegisterer/Updater object
+     */
+    public AgentRegisterer getUpdater()
+    {
+        return updater;
+    }
+    
+    /**setUpdater() - Sets the updater object. It's a single static object
+     * so limited to only being done once.
+     * 
+     * @param in - The agentRegisterer object to set to.
+     * @return - Whether it was successful.
+     */
+    public boolean setUpdater(AgentRegisterer in)
+    {
+        if (updater == null)
+        {
+            updater = in;
+            return true;
+        }
+        return false;
     }
 }
