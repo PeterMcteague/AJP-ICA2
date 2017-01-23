@@ -40,9 +40,9 @@ public class NodeMonitor extends MetaAgent
      */
     public void stop()
     {
-        interruptThread();
-        gui.dispose();
         System.out.println(getName() + " stopped");
+        gui.dispose();
+        interruptThread();
     }
     
     /**recieveMessage() - gets the message at the front of the queue and adds it to the output on the GUI, with a timestamp.

@@ -36,7 +36,7 @@ public class UserAgent extends MetaAgent implements Runnable{
     {
         synchronized(this)
         {
-            portal.add(new UserMessage(destination,getName(),message));
+            portal.offer(new UserMessage(destination,getName(),message));
             portal.resume();
             System.out.println(getName() + " has added a message to the queue of " + portal.getName() + ".");
         }
@@ -77,7 +77,7 @@ public class UserAgent extends MetaAgent implements Runnable{
     {
         if(portal != null)
         {
-            portal.removeAgent(getName());
+            portal.removeAgent(this);
             portal = null;
             return true;
         }

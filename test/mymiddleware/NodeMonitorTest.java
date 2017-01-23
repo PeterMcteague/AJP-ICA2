@@ -5,10 +5,13 @@
  */
 package mymiddleware;
 
+import static java.lang.Thread.sleep;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 
 /**
  *
@@ -16,27 +19,39 @@ import static org.junit.Assert.*;
  */
 public class NodeMonitorTest {
     
-    public NodeMonitorTest() {
+    protected NodeMonitor monitor;
+    
+    @Before
+    public void setUpClass() 
+    {
+        System.out.println("b4");
+        monitor = new NodeMonitor("TestMonitor");
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
+    @After
+    public void tearDownClass() 
+    {
+        System.out.println("after");
+        monitor = null;
     }
 
     /**
-     * Test of stop method, of class NodeMonitor.
+     * Test of stop method, of class NodeMonitor. 
+     * Sometimes it wakes up on its own which will cause the test to fail,
+     * should go back to sleep again in a real scenario.
      */
     @Test
-    public void testStop() {
-        System.out.println("stop");
-        NodeMonitor instance = null;
-        instance.stop();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testStop()
+    {
+        System.out.println("testStop : We will test by checking whether the"
+                + " nodemonitor thread is interrupted.");
+        
+        boolean wasntInterrupted = monitor.getThread().isInterrupted() == false;
+        System.out.println(monitor.getThread().isInterrupted());
+        monitor.stop();
+        System.out.println(monitor.getThread().isInterrupted());
+        boolean isInterrupted = monitor.getThread().isInterrupted() == true;
+        assertEquals(true,wasntInterrupted && isInterrupted);
     }
 
     /**
@@ -44,13 +59,13 @@ public class NodeMonitorTest {
      */
     @Test
     public void testRecieveMessage() {
-        System.out.println("recieveMessage");
-        NodeMonitor instance = null;
-        boolean expResult = false;
-        boolean result = instance.recieveMessage();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("recieveMessage : To test we will check that recieve"
+                + " message returns true after a message is added but not before.");
+        
+        boolean cantReceive = monitor.recieveMessage() == false;
+        monitor.add(new UserMessage("TestMonitor","Tester","Hi"));
+        boolean canReceive = monitor.recieveMessage() == true;
+        assertEquals(true, cantReceive && canReceive);
     }
 
     /**
@@ -58,11 +73,11 @@ public class NodeMonitorTest {
      */
     @Test
     public void testResume() {
-        System.out.println("resume");
-        NodeMonitor instance = null;
-        instance.resume();
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("resume : To test this we will suspend the monitor,"
+                + " resume it and check that the value has changed.");
+        monitor.setSuspended(true);
+        monitor.resume();
+        assertEquals(false, monitor.getSuspended());
     }
     
 }

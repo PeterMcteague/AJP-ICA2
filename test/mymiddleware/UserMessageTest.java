@@ -15,22 +15,18 @@ import static org.junit.Assert.*;
  * @author 07mct
  */
 public class UserMessageTest {
-    
-    public UserMessageTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
 
     @Test
-    public void testSomeMethod() {
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testGetters() 
+    {
+        System.out.println("getters : Check that all the getters return the "
+                + " correct" + " data.");
+        
+        UserMessage test = new UserMessage("someDestination", "someSender", "test");
+        
+        assertEquals("someDestination",test.getDestination());
+        assertEquals("someSender",test.getSender());
+        assertEquals("test",test.getMessage());
     }
     
 }

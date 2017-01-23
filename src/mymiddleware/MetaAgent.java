@@ -51,19 +51,19 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
                 //We synchronize this, to own the monitor (Makes wait possible).
                 synchronized(this)
                 {
-                    try{
-                        while(suspended) 
-                        {
-                            System.out.println(name + " is waiting..");
+                    while(suspended) 
+                    {
+                        System.out.println(name + " is waiting..");
+                        try {
                             wait();
+                        } catch (InterruptedException ex) {
+                            //Do nothing, expected if the user closes the program.
                         }
-                    } 
-                    catch (InterruptedException ex){
-                        Logger.getLogger(Portal.class.getName()).log(Level.SEVERE, "Node monitor" + name + " has stopped.", ex);
                     }
                 }
             }
         }
+        
     }
     
     /**recieveMessage - Receive and handle the message on the end of the queue.
@@ -94,7 +94,12 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
         System.out.println(name + " has resumed.");
         suspended = false;
         notify();
-        run();
+        /*This is ugly, I'm so sorry. I'd find a better way if I had time or if
+        someone else did*/
+        if (this instanceof UserAgent)
+        {
+            run(); //Required in useragent to recieve messages.
+        }
    }
     
     /**getName() - Gets the name attribute of a metaagent.

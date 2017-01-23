@@ -199,7 +199,7 @@ public class AgentRegisterer
                 if (q.tableGet(agent.getName()) instanceof Portal)
                 {
                     r = (Portal) q.tableGet(agent.getName());
-                    q.removeAgent(agent.getName());
+                    q.removeAgent(agent);
                     q = r;
                     System.out.println("Removed " + q.getName() +"'s reference and swapped to " + r.getName());
                 }
@@ -207,7 +207,7 @@ public class AgentRegisterer
                 and stop.*/
                 else
                 {
-                    q.removeAgent(agent.getName());
+                    q.removeAgent(agent);
                     break;
                 }
             }

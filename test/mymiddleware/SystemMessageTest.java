@@ -16,29 +16,17 @@ import static org.junit.Assert.*;
  */
 public class SystemMessageTest {
     
-    public SystemMessageTest() {
-    }
-    
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
     /**
      * Test of getData method, of class SystemMessage.
      */
     @Test
     public void testGetData() {
-        System.out.println("getData");
-        SystemMessage instance = null;
-        MetaAgent expResult = null;
-        MetaAgent result = instance.getData();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("getData : Return the data field from a system message.");
+        
+        UserAgent testAgent = new UserAgent("test");
+        SystemMessage test = new SystemMessage("someDestination", "someSender", "test", testAgent);
+        
+        assertEquals(test.getData(),testAgent);
     }
     
 }

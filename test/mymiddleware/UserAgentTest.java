@@ -9,6 +9,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Before;
 
 /**
  *
@@ -16,58 +17,44 @@ import static org.junit.Assert.*;
  */
 public class UserAgentTest {
     
-    public UserAgentTest() {
+    protected UserAgent firstAgent,secondAgent;
+    protected Portal firstPortal;
+    
+    
+    @Before
+    public void setUpClass() {
+        firstAgent = new UserAgent("agent1");
+        secondAgent = new UserAgent("agent2");
+        firstPortal = new Portal("portal1");
     }
     
-    @BeforeClass
-    public static void setUpClass() {
-    }
-    
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
     /**
      * Test of sendMessage method, of class UserAgent.
      */
     @Test
-    public void testSendMessage() {
-        System.out.println("sendMessage");
-        String destination = "";
-        String message = "";
-        UserAgent instance = null;
-        instance.sendMessage(destination, message);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testSendRecieveMessage() 
+    {
+        System.out.println("sendMessage : To test send a message between two"
+                + " agents via portal.");
+
+        firstAgent.attach(firstPortal);
+        secondAgent.attach(firstPortal);
+        
+        firstAgent.sendMessage("agent2", "Test");
+        System.out.println("Observe that messages are sent and recieved.");
     }
 
     /**
      * Test of isAttached method, of class UserAgent.
      */
     @Test
-    public void testIsAttached() {
-        System.out.println("isAttached");
-        UserAgent instance = null;
-        boolean expResult = false;
-        boolean result = instance.isAttached();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of attach method, of class UserAgent.
-     */
-    @Test
-    public void testAttach() {
-        System.out.println("attach");
-        Portal portalIn = null;
-        UserAgent instance = null;
-        boolean expResult = false;
-        boolean result = instance.attach(portalIn);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    public void testAttachAndIsAttached() 
+    {
+        System.out.println("isAttached : Call before and after attaching to portal.");
+        boolean before = firstAgent.isAttached();
+        firstAgent.attach(firstPortal);
+        boolean after = firstAgent.isAttached();
+        assertEquals(true, !before && after);
     }
 
     /**
@@ -75,13 +62,13 @@ public class UserAgentTest {
      */
     @Test
     public void testDetach() {
-        System.out.println("detach");
-        UserAgent instance = null;
-        boolean expResult = false;
-        boolean result = instance.detach();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("detach : Compare isAttatched before and after calling"
+                + " detach.");
+        
+        firstAgent.attach(firstPortal);
+        boolean before = firstAgent.isAttached();
+        firstAgent.detach();
+        boolean after = firstAgent.isAttached();
     }
 
     /**
@@ -89,13 +76,13 @@ public class UserAgentTest {
      */
     @Test
     public void testGetPortal() {
-        System.out.println("getPortal");
-        UserAgent instance = null;
-        Portal expResult = null;
-        Portal result = instance.getPortal();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        System.out.println("getPortal : Call getPortal before and after "
+                + "attaching.");
+        
+        boolean before = firstAgent.getPortal() == null;
+        firstAgent.attach(firstPortal);
+        boolean after = firstAgent.getPortal() != null;
+        assertEquals(true, before && after);                
     }
     
 }

@@ -85,7 +85,7 @@ public class Portal extends MetaAgent
      */
     public boolean attachUserAgent(UserAgent agentIn)
     {
-        if (agentIn.isAttached())
+        if (agentIn.isAttached() && agentIn.getPortal() == this)
         {
             if (!routingTable.containsKey(agentIn.getName()))
             {
@@ -190,23 +190,23 @@ public class Portal extends MetaAgent
     
     /**removeAgent(name) - Removes a named agent from the portal
      * 
-     * @param name - The name of the agent to remove.
+     * @param agentIn - The agent to remove.
      * @return - Whether it was succesfully removed.
      */
-    public boolean removeAgent(String name)
+    public boolean removeAgent(MetaAgent agentIn)
     {
         //If the agent is attached to this portal.
-        if (routingTable.containsKey(name) && routingTable.get(name).equals(this))
+        if (routingTable.containsKey(agentIn.getName()) && 
+                routingTable.get(agentIn.getName()) == agentIn)
         {
-            MetaAgent agent = routingTable.get(name);
-            routingTable.remove(name);
-            getUpdater().unregisterAgent(agent);
+            routingTable.remove(agentIn.getName());
+            getUpdater().unregisterAgent(agentIn);
             return true;
         }
         //Or if it's remote.
-        else if (routingTable.containsKey(name))
+        else if (routingTable.containsKey(agentIn.getName()))
         {
-            routingTable.remove(name);
+            routingTable.remove(agentIn.getName());
             return true;
         }
         return false;
