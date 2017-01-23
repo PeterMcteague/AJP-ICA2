@@ -23,19 +23,27 @@ public class AgentRegisterer
         portals = new ArrayList<>();
     }
     
-    /**registerAgent - Registers an agent with all portals.
+    /**registerAgent - Registers an agent with all portals, based on their 
+     * reference to an attachedportal.
      * 
      * @param agentIn - The agent to be registerd.
      * @param attachedPortal - The portal the agent is attached to.
      */
     public void registerAgent(MetaAgent agentIn, Portal attachedPortal)
     {
+        System.out.println("agentIn: " + agentIn.getName());
+        System.out.println("attachedPortal: " + attachedPortal.getName());
         for (Portal p : portals)
         {
-            if (p != attachedPortal && p != agentIn)
+            //If the portal isn't the agent or the portal.
+            if (!p.getName().equals(attachedPortal.getName()) && !p.getName().equals(agentIn.getName()))
             {
-                System.out.println("Adding reference to " + agentIn.getName() + " to " + p.getName() + " with value " + attachedPortal.getName());
-                p.tableAdd(agentIn.getName(), p.tableGet(attachedPortal.getName()));
+                if (p.tableGet(attachedPortal.getName()) != null)
+                {
+                    System.out.println("Portal name " + p.getName());
+                    System.out.println("Adding reference to " + agentIn.getName() + " to " + p.getName() + " with value " + attachedPortal.getName());
+                    p.tableAdd(agentIn.getName(), p.tableGet(attachedPortal.getName()));
+                }
             }
         }
     }
@@ -63,17 +71,18 @@ public class AgentRegisterer
     {
         for (Portal p : portals)
         {
-            if (!p.tableContainsValue(agentIn))
+            if (!p.tableContainsValue(agentIn) && p.getName()!=agentIn.getName())
             {
-               Portal referencePortal = registerPortalSearch(p,agentIn);
-               if (referencePortal != null)
-               {
-                   /*Put the route to the portal attached to the new portal instead.
-                   * As it will know about a portal attached to the new portal
-                   * we look up its route to that in the routing table instead.
-                   */
-                   p.tableAdd(agentIn.getName(), p.tableGet(referencePortal.getName()));
-               }
+                Portal referencePortal = registerPortalSearch(p,agentIn);
+                System.out.println("Registering " + agentIn.getName() + " on " + p.getName() + " with reference " + referencePortal.getName() );
+                if (referencePortal != null)
+                {
+                    /*Put the route to the portal attached to the new portal instead.
+                    * As it will know about a portal attached to the new portal
+                    * we look up its route to that in the routing table instead.
+                    */
+                    p.tableAdd(agentIn.getName(), p.tableGet(referencePortal.getName()));
+                }
             }
         }
         if (!portals.contains(agentIn))
@@ -85,7 +94,7 @@ public class AgentRegisterer
     /**For finding a reference for a portal that is not attached to a new portal.
      * 
      * @param distantPortal - The portal that cannot find the new portal.
-     * @param agentIn - The mew portal.
+     * @param agentIn - The new portal.
      * @return Returns a portal for the distantPortal to use as a reference to 
      * get to the new one.
      */
@@ -126,6 +135,11 @@ public class AgentRegisterer
         }
     }
     
+    public List<Portal> getPortals()
+    {
+        return portals;
+    }
+    
     /**removePortal() - Removes a portal to the list of portals known by the system.
      * 
      * @param in - The portal to remove.
@@ -133,15 +147,13 @@ public class AgentRegisterer
      */
     public boolean removePortal(Portal in)
     {
-        if (!portals.contains(in))
+        if (portals.contains(in))
         {
             portals.remove(in);
-            System.out.println("Updater removed portal " + in.getName());
             return true;
         }
         else
         {
-            System.out.println("Not in updater.");
             return false;
         }
     }
@@ -155,28 +167,32 @@ public class AgentRegisterer
     public void scopeDown(MetaAgent agent, int steps)
     {
         //Getting the highest scope portals for the agent.
-        List<Portal> tempList = portals;
+        List<Portal> listToRemove = new ArrayList<>();
+        List<Portal> newList = portals;
         for (Portal p : portals)
         {
-            for (Portal q: portals)
+            for (Portal q : portals)
             {
                 /*If a portal contains this portal as its route to the agent
                 * remove it. This leaves the outermost portal from agent.*/
                 if (q.tableGet(agent.getName()).equals(p))
                 {
-                    tempList.remove(p);
+                    System.out.println("Removing " + p.getName() + " from templist as it's not the highest scope.");
+                    listToRemove.add(p);
                 }
             }
         }
+        newList.removeAll(listToRemove);
+        System.out.println("Finished finding scope.");
         /*Templist now contains the outermost portals from the agent.
           Now we need to scope back by removing references steps times.*/
-        for (Portal p : tempList)
+        for (Portal p : newList)
         {
             //Take the outermost portals
             Portal q = p; 
             Portal r;
             //For the number of steps
-            for(int i=steps; i<0; i--)
+            for(int i=steps; i>0; i--)
             {
                 /*If it references another portal , remove the reference and
                 switch to the referenced portal*/
@@ -185,6 +201,7 @@ public class AgentRegisterer
                     r = (Portal) q.tableGet(agent.getName());
                     q.removeAgent(agent.getName());
                     q = r;
+                    System.out.println("Removed " + q.getName() +"'s reference and swapped to " + r.getName());
                 }
                 /*Or if it directly references the agent, we remove the reference
                 and stop.*/
@@ -206,7 +223,7 @@ public class AgentRegisterer
     public void scopeUp(MetaAgent agent, int steps)
     {
         //For the number of steps
-        for(int i=steps; i<0; i--)
+        for(int i=steps; i>0; i--)
         {
             //For all portals
             for (Portal p : portals)
@@ -222,7 +239,7 @@ public class AgentRegisterer
                         {
                             /*If that portal doesn't have a reference to the agent
                             add one.*/
-                            if ((Portal) ((Portal) q).tableGet(agent.getName()) == null)
+                            if (((Portal) q).tableGet(agent.getName()) == null)
                             {
                                 ((Portal) q).tableAdd(agent.getName(), p);
                             }

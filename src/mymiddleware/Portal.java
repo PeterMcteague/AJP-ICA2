@@ -49,7 +49,6 @@ public class Portal extends MetaAgent
         {
             System.out.println(agentIn.getName() + " is not in " + this.getName() +" and is being added.");
             routingTable.put(agentIn.getName(), agentIn);
-            getUpdater().registerAgent(agentIn, this);
             return true;
         }
         return false;
@@ -228,9 +227,9 @@ public class Portal extends MetaAgent
      */
     public boolean tableAdd(String nameIn,MetaAgent valueIn)
     {
-        System.out.println(nameIn + ": " + valueIn.getName() + " in " + this.getName());
         if (!routingTable.containsKey(nameIn))
         {
+            System.out.println("Key " + nameIn + " , value " + valueIn.getName() + " added to " + this.getName());
             routingTable.put(nameIn, valueIn);
             return true;
         }

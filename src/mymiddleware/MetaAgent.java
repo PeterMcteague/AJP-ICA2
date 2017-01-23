@@ -178,7 +178,7 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
      */
     public void scopeUp(int scopeSteps)
     {
-        this.getUpdater().scopeDown(this, scopeSteps);
+        this.getUpdater().scopeUp(this, scopeSteps);
     }
     
     /**getUpdater() - Gets the updater object. As it's a single static object,
