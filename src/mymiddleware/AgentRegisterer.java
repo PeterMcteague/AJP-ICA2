@@ -34,6 +34,7 @@ public class AgentRegisterer
         {
             if (p != attachedPortal && p != agentIn)
             {
+                System.out.println("Adding reference to " + agentIn.getName() + " to " + p.getName() + " with value " + attachedPortal.getName());
                 p.tableAdd(agentIn.getName(), p.tableGet(attachedPortal.getName()));
             }
         }

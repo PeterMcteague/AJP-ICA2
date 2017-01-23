@@ -57,6 +57,7 @@ public class MyMiddleware {
         NodeMonitor testMonitor2 = testPortal2.getMonitor();
         testPortal1.attach(testPortal2);
         testPortal2.attach(testPortal1);
+        testPortal2.registerAgent(agent2);
         agent1.sendMessage("agent2", "Second test");
         sleep(500); //So that press enter appears at a relevant time.
         System.out.println("Close a nodemonitor or stop the program to exit..");

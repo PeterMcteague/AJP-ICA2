@@ -33,6 +33,7 @@ public class Portal extends MetaAgent
         {
             setUpdater(new AgentRegisterer());
         }
+        getUpdater().addPortal(this);
         routingTable = new Hashtable<String,MetaAgent>(); 
         this.start();
     }
@@ -114,7 +115,7 @@ public class Portal extends MetaAgent
             //If the message is not for the portal, but for it to relay.
             if (!incomingMessage.getDestination().equals(getName()))
             {
-                System.out.println("This is not for " + getName() + "but is instead for " + incomingMessage.getDestination() + ". Sending.");
+                System.out.println("This is not for " + getName() + " but is instead for " + incomingMessage.getDestination() + ". Sending.");
                 sendMessage(incomingMessage);
             }
             return true;
@@ -139,22 +140,7 @@ public class Portal extends MetaAgent
             System.out.println("Message offered to " + routingTable.get(message.getDestination()) + " by " + getName());
             return true;
         }      
-        /*A fallback to see if any adjacent portals know how. Remove this for 
-        better routing but less functionality.*/
-        for (MetaAgent a: routingTable.values())
-        {
-            if (a instanceof Portal)
-            {
-                if (((Portal) a).routingTable.containsKey(message.getDestination()))
-                {
-                    System.out.println(((Portal) a).getName() + " has a route to the destination. Sending...");
-                    a.offer(message);
-                    a.resume();
-                    return true;
-                }
-            }
-        }
-        System.out.println(getName() + " could not find a way to send the message.");
+        System.out.println(getName() + " could not find a way to send the message to " + message.getDestination());
         return false;
     }
    
@@ -189,15 +175,15 @@ public class Portal extends MetaAgent
     
     /**registerAgent(agentName) - Tells other agents that the attached agent is 
      * here.
-     * @param agentName - The name of the attached agent.
+     * @param agent - The attached agent.
      * @return whether the registration was successful.
      */
-    public boolean registerAgent(String agentName)
+    public boolean registerAgent(UserAgent agent)
     {
         //If the agent belongs to this portal.
-        if (routingTable.containsKey(agentName) && routingTable.get(agentName).equals(this))
+        if (routingTable.containsKey(agent.getName()) && agent.getPortal() == this)
         {
-           getUpdater().registerAgent(routingTable.get(agentName), this);
+           getUpdater().registerAgent(routingTable.get(agent.getName()), this);
            return true;
         }
         return false;
@@ -242,7 +228,8 @@ public class Portal extends MetaAgent
      */
     public boolean tableAdd(String nameIn,MetaAgent valueIn)
     {
-        if (!routingTable.containsKey(nameIn) && !routingTable.containsValue(valueIn))
+        System.out.println(nameIn + ": " + valueIn.getName() + " in " + this.getName());
+        if (!routingTable.containsKey(nameIn))
         {
             routingTable.put(nameIn, valueIn);
             return true;
