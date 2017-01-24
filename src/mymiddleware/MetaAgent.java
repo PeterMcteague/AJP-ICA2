@@ -6,8 +6,6 @@
 package mymiddleware;
 
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**MetaAgent - A class to create MetaAgents from.
  * 
@@ -26,8 +24,6 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
     private Thread agentThread;
     /**A name for the agent. Used as a key in routing tables.*/
     private String name;
-    /**Whether the runnable has been suspended or not**/
-    private Boolean suspended;
     
     /**A method that gives the agent something to do whilst its running.
      * This should involve handling the message queue (Linked blocking queue).
@@ -35,9 +31,10 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
     @Override
     public void run() 
     {
-        System.out.println(name + " is running..");
+        System.out.println(getName() + " is running..");
+        System.out.println("");
         //While the thread hasn't been interrupted.
-        while (!agentThread.isInterrupted())
+        while (getThread()!=null && !getThread().isInterrupted())
         {
             //If the queue isn't empty, recieve the message
             if (!this.isEmpty())
@@ -47,23 +44,29 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
             //Otherwise we should sleep until there's something in the queue.
             else
             {
-                suspended = true;
-                //We synchronize this, to own the monitor (Makes wait possible).
-                synchronized(this)
-                {
-                    while(suspended) 
-                    {
-                        System.out.println(name + " is waiting..");
-                        try {
-                            wait();
-                        } catch (InterruptedException ex) {
-                            //Do nothing, expected if the user closes the program.
-                        }
-                    }
-                }
+                stop();
             }
         }
-        
+    }
+    
+    /**start() - Starts the metaagent (thread).*/
+    public void start () {
+        System.out.println("Starting " + name);
+        System.out.println("");
+        setThread(new Thread (this));
+        getThread().start();
+    }
+    
+    /**stop() - Stops the thread by dereferencing it.*/
+    public void stop()
+    {
+        if (getThread() != null)
+        {
+            getThread().interrupt();
+        }
+        System.out.println("No messages in " + name + " , shutting down.");
+        //Doesn't need to do anything if it has no messages to recieve
+        setThread(null); 
     }
     
     /**recieveMessage - Receive and handle the message on the end of the queue.
@@ -75,32 +78,11 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
         {
             Message incomingMessage = (Message) this.poll();
             System.out.println(name + " recieved message: " + incomingMessage.toString());
+            System.out.println("");
             return true;
         }
         return false;
     } 
-    
-    /**start() - Starts the metaagent (thread).*/
-    public void start () {
-        System.out.println("Starting " + name);
-        if (agentThread == null) {
-            agentThread = new Thread (this);
-            agentThread.start ();
-        }
-    }
-   
-    /**resume() - Resumes the metaagent from a suspended state.*/
-    public synchronized void resume() {
-        System.out.println(name + " has resumed.");
-        suspended = false;
-        notify();
-        /*This is ugly, I'm so sorry. I'd find a better way if I had time or if
-        someone else did*/
-        if (this instanceof UserAgent)
-        {
-            run(); //Required in useragent to recieve messages.
-        }
-   }
     
     /**getName() - Gets the name attribute of a metaagent.
      * 
@@ -120,24 +102,6 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
     public void setName(String nameIn)
     {
         name = nameIn;
-    }
-    
-    /**getSuspended() - Returns the value of suspended.
-     * 
-     * @return suspended - Whether the agent is suspended.
-     */
-    public boolean getSuspended()
-    {
-        return suspended;
-    }
-    
-    /**setSuspended() - Sets the value of suspended.
-     * 
-     * @param suspendIn - The value for suspended to be set to.
-     */
-    public void setSuspended(boolean suspendIn)
-    {
-        suspended = suspendIn;
     }
     
     /**getThread() - Gets the thread object that the agent is running on.
@@ -163,7 +127,7 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
      */
     public void interruptThread()
     {
-        agentThread.interrupt();
+        getThread().interrupt();
     }
     
     /**scopeDown(scopeSteps) - Decrease the scope of portals that can find this 
@@ -205,7 +169,7 @@ public abstract class MetaAgent extends LinkedBlockingQueue implements Runnable
      */
     public boolean setUpdater(AgentRegisterer in)
     {
-        if (updater == null)
+        if (getUpdater() == null)
         {
             updater = in;
             return true;

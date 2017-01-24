@@ -22,7 +22,6 @@ public class UserAgent extends MetaAgent implements Runnable{
      */
     public UserAgent(String nameIn) {
         setName(nameIn);
-        setThread(new Thread(this));
         this.start();
     }
     
@@ -32,14 +31,12 @@ public class UserAgent extends MetaAgent implements Runnable{
      * @param destination - The messages destination
      * @param message - The message.
      */
-    public void sendMessage(String destination, String message) 
+    public synchronized void sendMessage(String destination, String message) 
     {
-        synchronized(this)
-        {
-            portal.offer(new UserMessage(destination,getName(),message));
-            portal.resume();
-            System.out.println(getName() + " has added a message to the queue of " + portal.getName() + ".");
-        }
+        portal.offer(new UserMessage(destination,getName(),message));
+        portal.start();
+        System.out.println(getName() + " has added a message to the queue of " + portal.getName() + ".");
+        System.out.println("");
     }
 
     /**isAttached - whether the useragent is attached to a portal.

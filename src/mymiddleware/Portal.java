@@ -6,10 +6,7 @@
 package mymiddleware;
 
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**Portal - A metaagent that is used to relay messages between other agents.
  *
@@ -49,6 +46,7 @@ public class Portal extends MetaAgent
         {
             System.out.println(agentIn.getName() + " is not in " + this.getName() +" and is being added.");
             routingTable.put(agentIn.getName(), agentIn);
+            System.out.println("");
             return true;
         }
         return false;
@@ -108,14 +106,19 @@ public class Portal extends MetaAgent
             Message incomingMessage = (Message) this.poll();
             if (nodeMonitor != null)
             {
-                nodeMonitor.add(incomingMessage);
-                nodeMonitor.resume();
+                System.out.println("Copying recieve message to nodemonitor.");
+                nodeMonitor.offer(new UserMessage(nodeMonitor.getName(),getName(),"Recieved Message: " + incomingMessage.toString()));
+                if (nodeMonitor.getThread() == null)
+                {
+                    nodeMonitor.start();
+                }
             }
             //If the message is not for the portal, but for it to relay.
             if (!incomingMessage.getDestination().equals(getName()))
             {
                 System.out.println("This is not for " + getName() + " but is instead for " + incomingMessage.getDestination() + ". Sending.");
                 sendMessage(incomingMessage);
+                System.out.println("");
             }
             return true;
         }
@@ -132,14 +135,25 @@ public class Portal extends MetaAgent
         //If it has a direct link
         if (routingTable.get(message.getDestination()) != null)
         {
+            if (nodeMonitor != null)
+            {
+                System.out.println("Copying send message to nodemonitor.");
+                nodeMonitor.offer(new UserMessage(nodeMonitor.getName(),getName(),"Sent message: " + message.toString()));
+                if (nodeMonitor.getThread() == null)
+                {
+                    nodeMonitor.start();
+                }
+            }            
             System.out.println("There is a key in " + getName() + "'s routing table for " + message.getDestination());
             System.out.println("The value is " + routingTable.get(message.getDestination()).getName());
             routingTable.get(message.getDestination()).offer(message);//Offer message to 
-            routingTable.get(message.getDestination()).resume();
-            System.out.println("Message offered to " + routingTable.get(message.getDestination()) + " by " + getName());
+            System.out.println("Message offered to " + routingTable.get(message.getDestination()).getName() + " by " + getName());
+            routingTable.get(message.getDestination()).start();
+            System.out.println("");
             return true;
         }      
         System.out.println(getName() + " could not find a way to send the message to " + message.getDestination());
+        System.out.println("");
         return false;
     }
    
@@ -151,7 +165,7 @@ public class Portal extends MetaAgent
     {
         if (nodeMonitor != null)
         {
-            nodeMonitor.stop(); // need to find way of removing monitor with requested name.
+            nodeMonitor.stopGUI();
             nodeMonitor = null;
             return true;
         }
@@ -230,6 +244,7 @@ public class Portal extends MetaAgent
         if (!routingTable.containsKey(nameIn))
         {
             System.out.println("Key " + nameIn + " , value " + valueIn.getName() + " added to " + this.getName());
+            System.out.println("");
             routingTable.put(nameIn, valueIn);
             return true;
         }

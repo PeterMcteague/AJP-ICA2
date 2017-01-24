@@ -7,8 +7,6 @@ package mymiddleware;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**NodeMonitor - A class for monitoring node actions.
  *
@@ -33,16 +31,12 @@ public class NodeMonitor extends MetaAgent
     }
     
     /**Closes the GUI and stops the nodemonitor from running.
-     * 
-     * Make sure to dereference the nodemonitor for garbage disposal.
-     * When using this have the method call NodeMonitor.close() followed by
-     * nodeMonitorReference=null.
+     * Please dereference the nodemonitor from the agent after this.
      */
-    public void stop()
+    public void stopGUI()
     {
-        System.out.println(getName() + " stopped");
         gui.dispose();
-        interruptThread();
+        super.stop();
     }
     
     /**recieveMessage() - gets the message at the front of the queue and adds it to the output on the GUI, with a timestamp.
@@ -53,7 +47,7 @@ public class NodeMonitor extends MetaAgent
      * @return 
      */
     @Override
-    public synchronized boolean recieveMessage() 
+    public boolean recieveMessage() 
     {
         //If the queue isn't empty.
         if(!this.isEmpty())
@@ -64,20 +58,32 @@ public class NodeMonitor extends MetaAgent
             Message incomingMessage = (Message) this.poll();
             //Add message recieved with timestamp to the output on the GUI.
             gui.addToOutput(dateFormat.format(calendarInstance.getTime()) + ": " + incomingMessage.toString() + "\n");
-            gui.addToOutput("");
+            gui.addToOutput("\n");
             return true;
         }
         return false;
     }
-   
-    /**resume() - Resumes the running of the metaagent if its sleeping.
-     * 
-     *Can't use the one from metaagent because running this causes it to never 
-     *give another object a chance to run.*/
+    
+    /**A method that gives the agent something to do whilst its running.
+     * This should involve handling the message queue (Linked blocking queue).
+     */
     @Override
-    public synchronized void resume() {
-        System.out.println(getName() + " has resumed.");
-        setSuspended(false);
-        notify();
-   }
+    public synchronized void run() 
+    {
+        System.out.println(getName() + " is running..");
+        System.out.println("");
+        //While the thread hasn't been interrupted.
+        while (getThread()!=null && !getThread().isInterrupted())
+        {
+            //Wait until there is something
+            if (!this.isEmpty())
+            {
+                recieveMessage();
+            }
+            else
+            {
+                stop();
+            }
+        }
+    }
 }

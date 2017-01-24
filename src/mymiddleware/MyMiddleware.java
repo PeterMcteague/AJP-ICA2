@@ -64,6 +64,42 @@ public class MyMiddleware {
         SCANNER.nextLine();
     }
     
+    /**testThree() - A test of how the system handles multiple messages (10)
+     * at once.
+     * 
+     * @throws InterruptedException 
+     */
+    private void testThree() throws InterruptedException
+    {
+        UserAgent agent1 = new UserAgent("agent1");
+        UserAgent agent2 = new UserAgent("agent2");
+        Portal testPortal1 = new Portal("testPortal1");
+        Portal testPortal2 = new Portal("testPortal2");
+        agent1.attach(testPortal1);
+        agent2.attach(testPortal2);
+        testPortal1.addMonitor();
+        testPortal2.addMonitor();
+        NodeMonitor testMonitor1 = testPortal1.getMonitor();
+        NodeMonitor testMonitor2 = testPortal2.getMonitor();
+        testPortal1.attach(testPortal2);
+        testPortal2.attach(testPortal1);
+        testPortal2.registerAgent(agent2);
+        testPortal1.registerAgent(agent1);
+        agent1.sendMessage("agent2", "1-1");
+        agent2.sendMessage("agent1", "2-1");
+        agent1.sendMessage("agent2", "1-2");
+        agent2.sendMessage("agent1", "2-2");
+        agent1.sendMessage("agent2", "1-3");
+        agent2.sendMessage("agent1", "2-3");
+        agent1.sendMessage("agent2", "1-4");
+        agent2.sendMessage("agent1", "2-4");
+        agent1.sendMessage("agent2", "1-5");
+        agent2.sendMessage("agent1", "2-5");
+        sleep(500); //So that press enter appears at a relevant time.
+        System.out.println("Close a nodemonitor or stop the program to exit..");
+        SCANNER.nextLine();
+    }
+    
     /**questionAsk() - A menu for demo purposes that asks the user to choose
      * a demo to run.
      * 
@@ -76,6 +112,8 @@ public class MyMiddleware {
         //Demonstrate basic operation by modelling increasingly complex systems.
         System.out.println("1. Two agents connected to one portal.");
         System.out.println("2. Two portals connected to eachother, each with an agent.");
+        System.out.println("3. Two agents connected to a portal each, sending "
+                + "5 messages to eachother, each.");
         System.out.println("0. Exit");
         String input = SCANNER.nextLine();
         if (input != null)
@@ -96,6 +134,12 @@ public class MyMiddleware {
                 {
                     System.out.println("\n");
                     testTwo();
+                    return true;
+                } 
+                case("3"):
+                {
+                    System.out.println("\n");
+                    testThree();
                     return true;
                 } 
                 default:

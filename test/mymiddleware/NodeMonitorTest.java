@@ -66,18 +66,5 @@ public class NodeMonitorTest {
         monitor.add(new UserMessage("TestMonitor","Tester","Hi"));
         boolean canReceive = monitor.recieveMessage() == true;
         assertEquals(true, cantReceive && canReceive);
-    }
-
-    /**
-     * Test of resume method, of class NodeMonitor.
-     */
-    @Test
-    public void testResume() {
-        System.out.println("resume : To test this we will suspend the monitor,"
-                + " resume it and check that the value has changed.");
-        monitor.setSuspended(true);
-        monitor.resume();
-        assertEquals(false, monitor.getSuspended());
-    }
-    
+    } 
 }

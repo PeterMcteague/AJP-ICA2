@@ -31,8 +31,6 @@ public class AgentRegisterer
      */
     public void registerAgent(MetaAgent agentIn, Portal attachedPortal)
     {
-        System.out.println("agentIn: " + agentIn.getName());
-        System.out.println("attachedPortal: " + attachedPortal.getName());
         for (Portal p : portals)
         {
             //If the portal isn't the agent or the portal.
@@ -40,7 +38,6 @@ public class AgentRegisterer
             {
                 if (p.tableGet(attachedPortal.getName()) != null)
                 {
-                    System.out.println("Portal name " + p.getName());
                     System.out.println("Adding reference to " + agentIn.getName() + " to " + p.getName() + " with value " + attachedPortal.getName());
                     p.tableAdd(agentIn.getName(), p.tableGet(attachedPortal.getName()));
                 }
@@ -71,7 +68,7 @@ public class AgentRegisterer
     {
         for (Portal p : portals)
         {
-            if (!p.tableContainsValue(agentIn) && p.getName()!=agentIn.getName())
+            if (!p.tableContainsValue(agentIn) && !p.getName().equals(agentIn.getName()))
             {
                 Portal referencePortal = registerPortalSearch(p,agentIn);
                 System.out.println("Registering " + agentIn.getName() + " on " + p.getName() + " with reference " + referencePortal.getName() );
