@@ -43,15 +43,13 @@ public class NodeMonitorTest {
     @Test
     public void testStop()
     {
-        System.out.println("testStop : We will test by checking whether the"
-                + " nodemonitor thread is interrupted.");
+        System.out.println("testStop : We will test whether the stop method "
+                + "stops execution and removes the thread.");
         
         boolean wasntInterrupted = monitor.getThread().isInterrupted() == false;
-        System.out.println(monitor.getThread().isInterrupted());
         monitor.stop();
-        System.out.println(monitor.getThread().isInterrupted());
-        boolean isInterrupted = monitor.getThread().isInterrupted() == true;
-        assertEquals(true,wasntInterrupted && isInterrupted);
+        boolean isStopped = monitor.getThread() == null;
+        assertEquals(true,wasntInterrupted && isStopped);
     }
 
     /**
